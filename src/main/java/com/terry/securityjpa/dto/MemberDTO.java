@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
-@EqualsAndHashCode(exclude = {"createDT", "updateDT", "grantedAuthoritySet", "roleSet"})
-@ToString(exclude = {"roleSet", "grantedAuthoritySet"})
 @NoArgsConstructor
 @Slf4j
 public class MemberDTO implements UserDetails {
@@ -26,10 +24,17 @@ public class MemberDTO implements UserDetails {
   private String name;
   private String loginId;
   private String loginPassword;
+  @EqualsAndHashCode.Exclude
   private LocalDateTime createDT;
+  @EqualsAndHashCode.Exclude
   private LocalDateTime updateDT;
 
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
+  
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<String> roleSet = new HashSet<>();
 
   public MemberDTO(Member member) {
