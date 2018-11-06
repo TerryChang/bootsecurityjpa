@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>고객목록</title>
+    <link rel="stylesheet" type="text/css" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="container">
+    <h1>에러페이지</h1>
+    <div>
+        <span th:if="${error} == 'invalidate'" th:text="#{spring.security.session.invalidate}" class="alert alert-danger">세션이 만기되었습니다. 재로그인 해주세요 Test</span>
+        <span th:if="${error} == 'expired'" th:text="#{spring.security.session.expired}" class="alert alert-danger">중복 로그인으로 인해 세션이 만기되었습니다. 재로그인 해주세요 Test</span>
+        <span th:if="${error}== 'etc'" th:text="#{spring.security.session.etc}" class="alert alert-danger">기타 세션 오류가 발생되었습니다. 재로그인 해주세요 Test</span>
+    </div>
+    <div>
+        <a href="/login.html">로그인</a>
+    </div>
+</div>
+</body>
+</html>

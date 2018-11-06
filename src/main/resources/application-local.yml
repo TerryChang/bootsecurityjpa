@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:h2:mem:securityjpa;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # url: jdbc:log4jdbc:h2:tcp://localhost:9092/mem:securityjpa;MVCC=true;
+    username: sa
+    password:
+    platform: h2
+  jpa:
+    show-sql: false
+    database: h2
+    hibernate:
+      ddl-auto: validate
+  devtools:
+    livereload:
+      enabled: true
+h2:
+  tcpServer:
+    enabled: true
+    port: 9092
+  webServer:
+    enabled: false
+    port: 8082
+
+app:
+  domain: localhost
+  upliadFilePath: D:/uploadFile/
+  #summernote 에디터에서 이미지 업로드할때 이미지가 저장되는 경로
+  #summernote.images : 환경설정시 사용
+  #summernote.imagesDir : 이미지 디렉토리 만들때 사용
+  summernote:
+    images: file:///D:/projects/intellij_projects/springboot/securityjpa/src/main/webapp/summernote/images/
+    imagesDir: D:/projects/intellij_projects/springboot/securityjpa/src/main/webapp/summernote/images

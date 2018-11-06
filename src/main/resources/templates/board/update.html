@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>회원등급 게시판</title>
+    <style>
+        tr.text-center th {
+            text-align: center;
+        }
+
+        tr.text-center td {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
+    <link href="../../../static/summernote/summernote.css" th:href="@{/summernote/summernote.css}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <script src="../../../static/summernote/summernote.js" th:src="@{/summernote/summernote.js}"></script>
+    <script src="../../../static/summernote/lang/summernote-ko-KR.js" th:src="@{/summernote/lang/summernote-ko-KR.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        /* <![CDATA[ */
+        $(document).ready(function(){
+            // ajax 작업시 캐쉬를 사용하지 않도록 한다
+            $.ajaxSetup({ cache: false, async : false });
+
+            $("#contents").summernote({
+                lang: 'ko-KR',
+                height: 300,
+                minHeight: null,
+                maxHeight: null,
+                focus: true,
+                placeholder: '내용을 작성해주세요',
+                fontName: '굴림',
+                // 폰트를 임의로 설정하더라도 Helvetica 폰트가 추가되는데 그 이유는 summernote가 body 태그에 style로 설정되어 있는 font를 자동으로 추가하기 때문이다
+                // Helvetica 폰트는 bootstrap에서 body 태그에 style로 font를 설정해줘서 summernote 에서 이 font가 추가되면서 default로 선택이 되게끔 한 것이다
+                fontNames: ['굴림', '궁서', '돋움'],
+                toolbar: [
+                    // [groupName, [list of button]]
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontface', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['picture', 'link', 'video', 'table', 'hr']],
+                    ['view', ['codeview']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files, editor, welEditable) {
+                        imageUpload(files[0], editor, welEditable);
+                    }
+                }
+            });
+
+            $("#regbtn").click(function(){
+                if($("#title").val() == "") {
+                    alert("제목을 작성해주세요");
+                    $("#title").focus();
+                } else if($("#contents").summernote('isEmpty')) {
+                    alert("내용을 작성해주세요");
+                    $("#contents").summernote('focus');
+                } else {
+                    $("#form").submit();
+                }
+            });
+
+            $("#resetbtn").click(function(){
+                $("#contents").summernote('reset');
+            });
+
+            $("#listbtn").click(function(){
+
+            });
+        });
+
+        function imageUpload(file, editor, welEditable) {
+            var data = new FormData();
+            data.append("image", file);
+            $.ajax({
+                data : data,
+                type : "POST",
+                url : "/board/imageUpload.html",
+                cache : false,
+                contentType : false,
+                processData : false,
+                success : function(imageUrl) {
+                    var image = $("<img>").attr("src", imageUrl);
+                    $("#contents").summernote("insertNode", image[0]);
+                    // editor.insertImage(welEditable, imageUrl);
+                },
+                error : function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function deleteFile(idx, linkobj) {
+            if(confirm("파일을 삭제하시겠습니까?")) {
+                var data = new Object();
+                data.idx = idx;
+                $.ajax({
+                    data : JSON.stringify(data),
+                    type : "POST",
+                    url : "/board/deleteFile",              // json으로 return 받을때 확장자로 html을 쓰면 안된다. html을 쓰면 return 을 html 문서로 생각하고 그에 맞춰 return 하기 때문에 json으로 받질 못한다
+                    contentType : "application/json; charset=UTF-8",
+                    dataType : "json",
+                    cache : false,
+                    processData : false,
+                    async : true,
+                    success : function(data, status, xhr) {
+                        var result = data.result;
+                        if(result == "OK") {
+                            alert("파일을 삭제했습니다");
+                            if($(linkobj).next().is("br")){
+                                $(linkobj).next().remove();
+                            }
+                            $(linkobj).prev().remove();
+                            $(linkobj).remove();
+
+                            if($("#current_file_list").is(":empty")) {
+                                var msg = /*[[ #{board.nouploadfiles} ]]*/;
+                                $("#current_file_list").html("<span>" + msg + "</span>");
+                            }
+                        }
+                    },
+                    error : function(error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
+        /* ]]> */
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1><span th:text="회원등급 수정 ${type}">회원등급 게시판</span></h1>
+    <form id="form" action="update.html" method="post" enctype="multipart/form-data" th:object="${board}">
+        <input type="hidden" id="idx" name="idx" th:field="*{idx}" />
+        <table class="table table-bordered" style="table-layout: fixed">
+            <tr>
+                <td class="text-center col-md-2">제목</td>
+                <td class="col-md-10">
+                    <input type="text" id="title" name="title" class="form-control" placeholder="제목을 작성해주세요" th:field="*{title}" />
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center col-md-2">작성자</td>
+                <td class="col-md-10" th:text="${board.loginId}">작성자아이디</td>
+            </tr>
+            <tr>
+                <td class="text-center">내용</td>
+                <td>
+                    <textarea id="contents" name="contents" th:text="*{contents}"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center">기존파일</td>
+                <td id="current_file_list">
+                    <span th:if="*{#lists.isEmpty(boardFileDTOList)}" th:text="#{board.nouploadfiles}">업로드된 파일이 없습니다</span>
+                    <th:block th:unless="*{#lists.isEmpty(boardFileDTOList)}" th:each="file, iter : *{boardFileDTOList}">
+                        <a href="#" th:href="@{/board/downloadFile.html(idx=${file.idx})}" th:text="${file.orgFileName}">abc.jpg</a>
+                        <a href="#" th:onclick="'javascript:deleteFile(' + ${file.idx} + ', this);'"><span class="glyphicon glyphicon-remove"></span></a>
+                        <br th:unless="${iter.count==iter.size}"/>
+                    </th:block>
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center">신규파일</td>
+                <td>
+                    <input type="file" id="file1" name="file" />
+                    <input type="file" id="file2" name="file" />
+                    <input type="file" id="file3" name="file" />
+                    <input type="file" id="file4" name="file" />
+                    <input type="file" id="file5" name="file" />
+                </td>
+            </tr>
+        </table>
+        <div class="text-center">
+            <a id="regbtn" class="btn btn-default">등록</a>
+            <a id="resetbtn" class="btn btn-default">재작성</a>
+            <a id="listbtn" class="btn btn-default">목록</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

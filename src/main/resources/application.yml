@@ -1,0 +1,32 @@
+# Hibernate5 를 사용시 @SequenceGenerator 어노테이션을 사용할 경우 deprecated 된 org.hibernate.id.SequenceGenerator를
+# 사용한다는 문구가 나온다. 이를 해결하기 위해 spring.jpa.properties.hibernate.id.new_generator_mappings 를 true로 설정해서
+# org.hibernate.id.enhanced.SequenceStyleGenerator 를 사용하게끔 하도록 설정해주면 그 문구가 나타나지 않는다
+spring:
+  profiles:
+    active: local
+  aop:
+      # interface가 아닌 class로 AOP 작업을 해야 할때 이 속성을 true로 한다
+      # @Transactional이 적용되어 있는 interface를 구현한 클래스가 @Autowired로 Injection 받을때도 적용된다
+      proxy-target-class: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        id:
+          new_generator_mappings: true
+  messages:
+    always-use-message-format: false
+    cache-seconds: 1
+    basename: messages/message, messages/error
+    encoding: UTF-8
+  thymeleaf:
+    cache: false
+    mode: HTML5
+  http:
+    multipart:
+      max-file-size: 100MB          # 파일 업로드시 한 파일의 최대 파일 크기
+      max-request-size: 1000MB      # 파일 업로드시 업로드 가능한 전체 파일의 총합 크기(파일을 10개를 올린다고 가정할 경우 10개 파일의 크기를 모두 합한 전체 파일 총합의 크기의 maximum을 설정하는 것이다, -1이면 무제한)
+      location: ${java.io.tmpdir}
+app:
+  domain: localhost

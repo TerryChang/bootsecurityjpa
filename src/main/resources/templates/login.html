@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>로그인 화면</title>
+    <link rel="stylesheet" type="text/css" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="container">
+    <h1>시스템</h1>
+    <form th:action="@{/login_proc.html}" class="form-signin" method="post" action="/login_proc.html">
+        <h2 class="form-signin-heading">로그인 폼</h2>
+        <span th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}" class="alert alert-danger">잘못된 아이디나 암호입니다</span>
+        <input type="text" class="form-control" name="loginId" placeholder="아이디" required="required" autofocus="autofocus" />
+        <input type="password" class="form-control" name="password" placeholder="비밀번호" required="required" />
+        <button type="submit" class="btn btn-lg btn-primary btn-block">작성</button>
+    </form>
+</div>
+</body>
+</html>
