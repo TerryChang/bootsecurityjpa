@@ -26,7 +26,7 @@ import java.util.Set;
 public class WebConfig extends WebMvcConfigurerAdapter {
 
   @Autowired
-  Set<Converter> converters;
+  Set<Converter<?, ?>> converters;
 
   @Value("${app.summernote.images}")
   private String appSummernoteImages;
