@@ -1,14 +1,10 @@
 package com.terry.securityjpa.web;
 
-import com.terry.securityjpa.dto.MemberDTO;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Set;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class BoardController {
@@ -23,26 +19,38 @@ public class BoardController {
   }
   */
 
-  @RequestMapping(value="/{member_type}/board/list")
+  @GetMapping(value="/board/{member_type}/list")
   public String list(@PathVariable(value = "member_type") String member_type, Model model) {
     model.addAttribute("type", member_type);
     return "board/list";
   }
 
-  @RequestMapping(value="/{member_type}/board/view")
+  @GetMapping(value="/board/{member_type}/view")
   public String view(@PathVariable(value = "member_type") String member_type, Model model) {
     model.addAttribute("type", member_type);
     return "board/view";
   }
 
-  @RequestMapping(value="/{member_type}/board/write")
+  @GetMapping(value="/board/{member_type}/write")
   public String write(@PathVariable(value = "member_type") String member_type, Model model) {
     model.addAttribute("type", member_type);
     return "board/write";
   }
+  
+  @PostMapping(value="/board/{member_type}/write")
+  public String writePost(@PathVariable(value = "member_type") String member_type, Model model) {
+	model.addAttribute("type", member_type);
+	return "board/write";
+  }
 
-  @RequestMapping(value="/{member_type}/board/update")
+  @GetMapping(value="/board/{member_type}/update")
   public String update(@PathVariable(value = "member_type") String member_type, Model model) {
+    model.addAttribute("type", member_type);
+    return "board/update";
+  }
+  
+  @PostMapping(value="/board/{member_type}/update")
+  public String updatePost(@PathVariable(value = "member_type") String member_type, Model model) {
     model.addAttribute("type", member_type);
     return "board/update";
   }
