@@ -11,15 +11,27 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
 </head>
 <body>
-<div class="container">
-    <h1>시스템</h1>
-    <form th:action="@{/login_proc.html}" class="form-signin" method="post" action="/login_proc.html">
-        <h2 class="form-signin-heading">로그인 폼</h2>
-        <span th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}" class="alert alert-danger">잘못된 아이디나 암호입니다</span>
-        <input type="text" class="form-control" name="loginId" placeholder="아이디" required="required" autofocus="autofocus" />
-        <input type="password" class="form-control" name="password" placeholder="비밀번호" required="required" />
-        <button type="submit" class="btn btn-lg btn-primary btn-block">작성</button>
-    </form>
-</div>
+	<div class="container">
+	    <div class="text-center login-form">
+	    	<div class="col-sm-6 col-sm-offset-3 form-box">
+	    		<div class="panel">
+	   				<h2>로그인</h2>
+	   				<p>아이디와 비밀번호를 입력해주세요</p>
+	   			</div>
+		    	<form th:action="@{/login_proc.html}" class="form-signin" method="post" action="/login_proc.html">
+		        	<div class="form-group">
+			            <input type="text" class="form-control" name="loginId" placeholder="아이디" required="required" autofocus="autofocus">
+					</div>
+			        <div class="form-group">
+			            <input type="password" class="form-control" name="password" placeholder="비밀번호" required="required">
+			        </div>
+			        <div th:if="${param.error}" class="form-group">
+			        	<span th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}" class="alert alert-danger">잘못된 아이디나 암호입니다</span>
+			        </div>
+			        <button type="submit" class="btn btn-lg btn-primary btn-block">작성</button>
+		    	</form>
+		    </div>
+	    </div>
+	</div>
 </body>
 </html>

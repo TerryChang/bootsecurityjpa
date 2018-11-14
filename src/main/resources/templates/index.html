@@ -13,17 +13,27 @@
 <body>
 <div class="container">
     <h1 th:text="'메인화면' + ${test}">메인화면</h1>
-    <span sec:authorize="isAuthenticated()">
-        <div>
-            <span sec:authentication="name" />님이 로그인했습니다<br/>
-            <a th:href="@{/logout.html}">로그아웃</a>
-        </div>
-    </span>
-    <span sec:authorize="isAnonymous()">
-        <div>
-            <a th:href="@{/login.html}">로그인</a>
-        </div>
-    </span>
+    <nav class="navbar navbar-default">
+  		<div class="container-fluid">
+		    <ul class="nav navbar-nav">
+		    	<li><a href="#">Home</a></li>
+		      	<li><a href="#">준회원 게시판</a></li>
+		      	<li><a href="#">정회원 게시판</a></li>
+		      	<li><a href="#">관리자 게시판</a></li>
+			    <li sec:authorize="isAnonymous()"><a th:href="@{/login.html}">로그인</a></li>
+			    <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li>
+			    <li sec:authorize="isAuthenticated()">
+			    	<a th:href="@{/logout.html}">로그아웃</a>
+			    </li>
+			</ul>
+		</div>
+	</nav>
 </div>
+<!-- 
+<li sec:authorize="isAuthenticated()"><span sec:authentication="name">로그인 아이디</span></li>
+-->
+<!-- 
+<span sec:authentication="name" />님<a th:href="@{/logout.html}">로그아웃</a>
+ -->
 </body>
 </html>
