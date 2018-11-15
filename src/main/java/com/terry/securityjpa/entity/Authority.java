@@ -12,8 +12,6 @@ import javax.persistence.*;
 import java.util.*;
 
 @Data
-@EqualsAndHashCode(exclude = {"createUpdateDT", "urlResourcesSet", "memberSet"})
-@ToString(exclude = {"urlResourcesSet", "memberSet"})
 @NoArgsConstructor
 @Slf4j
 @Entity
@@ -32,6 +30,7 @@ public class Authority {
   private String authorityDesc;
 
   @Embedded
+  @EqualsAndHashCode.Exclude
   private CreateUpdateDT createUpdateDT;
 
   @Id
@@ -44,9 +43,13 @@ public class Authority {
 
   @ManyToMany(fetch=FetchType.LAZY, mappedBy = "authoritySet")
   @OrderBy("ordernum desc")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<UrlResources> urlResourcesSet = new LinkedHashSet<>();
 
   @ManyToMany(fetch=FetchType.LAZY, mappedBy = "authoritySet")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<Member> memberSet = new HashSet<>();
 
 }

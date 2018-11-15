@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = {"createUpdateDT", "authoritySet"})
-@ToString(exclude = {"authoritySet"})
 @NoArgsConstructor
 @Slf4j
 @Entity
@@ -42,6 +40,7 @@ public class UrlResources {
   private Short ordernum;
 
   @Embedded
+  @EqualsAndHashCode.Exclude
   private CreateUpdateDT createUpdateDT;
 
   @Id
@@ -56,6 +55,8 @@ public class UrlResources {
   @JoinTable(name="URL_RESOURCES_AUTHORITY"
       , joinColumns = {@JoinColumn(name="URL_RESOURCES_IDX")}
       , inverseJoinColumns = {@JoinColumn(name="AUTHORITY_IDX")})
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<Authority> authoritySet = new HashSet<>();
 
   public void addAuthority(Authority authority) {

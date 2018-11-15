@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = {"createUpdateDT", "roleSet", "authoritySet"})
-@ToString(exclude = {"roleSet", "authoritySet"})
 @NoArgsConstructor
 @Slf4j
 @Entity
@@ -37,6 +35,7 @@ public class Member implements CreateUpdateDTAuditable {
   private String loginPassword;
 
   @Embedded
+  @EqualsAndHashCode.Exclude
   private CreateUpdateDT createUpdateDT;
 
   @Id
@@ -51,12 +50,16 @@ public class Member implements CreateUpdateDTAuditable {
   @JoinTable(name="MEMBER_ROLE"
       , joinColumns = {@JoinColumn(name="MEMBER_IDX")}
       , inverseJoinColumns = {@JoinColumn(name="ROLE_IDX")})
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<Role> roleSet = new HashSet<>();
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name="MEMBER_AUTHORITY"
       , joinColumns = {@JoinColumn(name="MEMBER_IDX")}
       , inverseJoinColumns = {@JoinColumn(name="AUTHORITY_IDX")})
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private Set<Authority> authoritySet = new HashSet<>();
 
   public void addRole(Role role) {
