@@ -1,6 +1,7 @@
 package com.terry.securityjpa.entity;
 
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
+import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
 import com.terry.securityjpa.entity.enumerated.RequestMatcherType;
 import lombok.Data;
@@ -22,7 +23,7 @@ import java.util.Set;
 @Table(name = "URL_RESOURCES")
 @SequenceGenerator(name="UrlResourcesSequenceGenerator", sequenceName="SEQ_URL_RESOURCES", initialValue=1, allocationSize=1)
 @Access(AccessType.FIELD)
-public class UrlResources {
+public class UrlResources implements CreateUpdateDTAuditable {
 
   private Long idx;
 

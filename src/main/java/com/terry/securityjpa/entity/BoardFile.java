@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 @Entity
-@Table(name = "BOARD")
+@Table(name = "BOARD_FILE")
 @SequenceGenerator(name="BoardFileSequenceGenerator", sequenceName="SEQ_BOARD_FILE", initialValue=1, allocationSize=1)
 @Access(AccessType.FIELD)
 public class BoardFile {
@@ -68,7 +68,7 @@ public class BoardFile {
 	public void setBoard(Board board) {
 	  this.board = board;
 	  if(board != null && !board.getBoardFileSet().contains(this)) {
-		board.getBoardFileSet().add(this);
+			board.getBoardFileSet().add(this);
 	  }
 	}
 }

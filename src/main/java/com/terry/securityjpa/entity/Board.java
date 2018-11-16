@@ -21,6 +21,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
+import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
 
 import lombok.Data;
@@ -37,50 +38,56 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "BOARD")
 @SequenceGenerator(name="BoardSequenceGenerator", sequenceName="SEQ_BOARD", initialValue=1, allocationSize=1)
 @Access(AccessType.FIELD)
-public class Board {
+public class Board implements CreateUpdateDTAuditable {
 
-	private Long idx;
-	
-	@Column(name="TITLE")
-	private String title;
-	
-	@Column(name="CONTENTS")
-	@Lob	
-	private String contents;
-	
-	@Embedded
-	@EqualsAndHashCode.Exclude
-	private CreateUpdateDT createUpdateDT;
-	
-	@Id
-	@Column(name="IDX")
-	@GeneratedValue(strategy= GenerationType.SEQUENCE, generator="BoardSequenceGenerator")
-	@Access(AccessType.PROPERTY)
-	public Long getIdx() {
-	  return idx;
-	}
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="MEMBER_IDX")
-	@ToString.Exclude
-	private Member member;
-	
-	@OneToMany(fetch=FetchType.LAZY, mappedBy = "board")
-	@EqualsAndHashCode.Exclude
-	@ToString.Exclude
-	private Set<BoardFile> boardFileSet = new HashSet<>();
-	
-	public void addBoardFile(BoardFile boardFile) {
-      boardFileSet.add(boardFile);
-	  if(boardFile.getBoard() != this) {
-	    boardFile.setBoard(this);
-	  }
-	}
+  private Long idx;
 
-	public void removeBoardFile(BoardFile boardFile) {
-	  if(boardFile.getBoard() == this) {
-		boardFileSet.remove(boardFile);  
-	  }
-	  boardFile.setBoard(null);
+  @Column(name="TITLE")
+  private String title;
+
+  @Column(name="CONTENTS")
+  @Lob
+  private String contents;
+
+  @Embedded
+  @EqualsAndHashCode.Exclude
+  private CreateUpdateDT createUpdateDT;
+
+  @Id
+  @Column(name="IDX")
+  @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="BoardSequenceGenerator")
+  @Access(AccessType.PROPERTY)
+  public Long getIdx() {
+    return idx;
+  }
+
+  @ManyToOne
+  @JoinColumn(name="MEMBER_IDX", nullable = false)
+  @ToString.Exclude
+  private Member member;
+
+  @OneToMany(fetch=FetchType.LAZY, mappedBy = "board")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private Set<BoardFile> boardFileSet = new HashSet<>();
+
+  public Board(Member member, String title, String contents) {
+    this.member = member;
+    this.title = title;
+    this.contents = contents;
+  }
+
+  public void addBoardFile(BoardFile boardFile) {
+    boardFileSet.add(boardFile);
+    if(boardFile.getBoard() != this) {
+      boardFile.setBoard(this);
     }
+  }
+
+  public void removeBoardFile(BoardFile boardFile) {
+    if(boardFile.getBoard() == this) {
+      boardFileSet.remove(boardFile);
+    }
+    boardFile.setBoard(null);
+  }
 }

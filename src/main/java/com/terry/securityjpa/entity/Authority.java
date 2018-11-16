@@ -1,6 +1,7 @@
 package com.terry.securityjpa.entity;
 
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
+import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ import java.util.*;
 @Table(name = "AUTHORITY")
 @SequenceGenerator(name="AuthoritySequenceGenerator", sequenceName="SEQ_AUTHORITY", initialValue=1, allocationSize=1)
 @Access(AccessType.FIELD)
-public class Authority {
+public class Authority implements CreateUpdateDTAuditable {
 
   private Long idx;
 

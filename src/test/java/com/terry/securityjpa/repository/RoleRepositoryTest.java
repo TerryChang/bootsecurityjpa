@@ -25,4 +25,5 @@ public class RoleRepositoryTest {
     List<Role> roleList = roleRepository.getRoleWithchildRoleSet();
     assertThat(roleList).isNotNull();
   }
+
 }

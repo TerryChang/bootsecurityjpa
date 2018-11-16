@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface UrlResourcesRepository extends JpaRepository<UrlResources, Long> {
 
   @Query("select u from UrlResources u join fetch u.authoritySet order by u.ordernum desc")

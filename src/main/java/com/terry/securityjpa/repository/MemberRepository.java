@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-@Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // @Query("select m from Member m join fetch m.authoritySet a1 join fetch m.roleSet r join fetch r.authoritySet a2 where m.loginId = :loginId")

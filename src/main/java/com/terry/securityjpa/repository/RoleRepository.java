@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
   @Query("select distinct r from Role r left outer join fetch r.childRoleSet")
   List<Role> getRoleWithchildRoleSet();

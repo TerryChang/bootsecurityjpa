@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "ROLE")
 @SequenceGenerator(name="RoleSequenceGenerator", sequenceName="SEQ_ROLE", initialValue=1, allocationSize=1)
 @Access(AccessType.FIELD)
-public class Role {
+public class Role implements CreateUpdateDTAuditable {
 
   private Long idx;
 
