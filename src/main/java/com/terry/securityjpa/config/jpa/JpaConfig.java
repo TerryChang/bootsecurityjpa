@@ -10,14 +10,13 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.terry.securityjpa.config.converter.attribute.BoardTypeConverter;
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaAuditing
-@EnableJpaRepositories({"com.terry.securityjpa.repository"})
-@EntityScan(
-    basePackageClasses = {Jsr310JpaConverters.class}
-    , basePackages = {"com.terry.securityjpa.entity"}
-)
+@EnableJpaRepositories({ "com.terry.securityjpa.repository" })
+@EntityScan(basePackageClasses = { Jsr310JpaConverters.class }, basePackages = { "com.terry.securityjpa.entity" })
 public class JpaConfig {
 
   @Bean
@@ -31,4 +30,5 @@ public class JpaConfig {
   public SortHandlerMethodArgumentResolver sortResolver() {
     return new SortHandlerMethodArgumentResolver();
   }
+  
 }

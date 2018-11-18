@@ -22,13 +22,13 @@ public class UrlSecurityMetadataSource implements FilterInvocationSecurityMetada
   @Override
   public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
     Collection<ConfigAttribute> result = null;
-    FilterInvocation fi = (FilterInvocation)object;
+    FilterInvocation fi = (FilterInvocation) object;
 
     LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap = cacheService.getUrlResourceList();
     HttpServletRequest httpServletRequest = fi.getHttpRequest();
 
-    if(requestMap != null) {
-      for(Map.Entry<RequestMatcher, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+    if (requestMap != null) {
+      for (Map.Entry<RequestMatcher, List<ConfigAttribute>> entry : requestMap.entrySet()) {
         RequestMatcher matcher = entry.getKey();
         if (matcher.matches(httpServletRequest)) {
           result = entry.getValue();
@@ -43,9 +43,9 @@ public class UrlSecurityMetadataSource implements FilterInvocationSecurityMetada
   public Collection<ConfigAttribute> getAllConfigAttributes() {
     LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap = cacheService.getUrlResourceList();
     Set<ConfigAttribute> result = new HashSet<>();
-    for(Map.Entry<RequestMatcher, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+    for (Map.Entry<RequestMatcher, List<ConfigAttribute>> entry : requestMap.entrySet()) {
       List<ConfigAttribute> list = entry.getValue();
-      if(list != null) {
+      if (list != null) {
         result.addAll(list);
       }
     }

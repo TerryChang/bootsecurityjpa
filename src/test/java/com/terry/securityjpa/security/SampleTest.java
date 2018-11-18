@@ -53,63 +53,51 @@ public class SampleTest {
 
   /**
    * 올바른 로그인 아이디와 비밀번호를 주었을때 /index.html로 이동하는지에 대한 테스트
+   * 
    * @throws Exception
    */
   @Test
   public void login() throws Exception {
-    mockMvc.perform(
-        post("/login_proc.html")
-        .param("loginId", "associate_id")
-        .param("password", "1234")
-    ).andDo(print()).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/index.html"));
+    mockMvc.perform(post("/login_proc.html").param("loginId", "associate_id").param("password", "1234")).andDo(print())
+        .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/index.html"));
   }
 
   /**
-   * 틀린 로그인 아이디와 비밀번호를 주었을때 login.html?error=true로 url 이동하는지에 대한 테스트
-   * 메시지 부분은 나중에 테스트 해보자
+   * 틀린 로그인 아이디와 비밀번호를 주었을때 login.html?error=true로 url 이동하는지에 대한 테스트 메시지 부분은 나중에
+   * 테스트 해보자
+   * 
    * @throws Exception
    */
   @Test
   public void loginInvalidId() throws Exception {
-    mockMvc.perform(
-        post("/login_proc.html")
-            .param("loginId", "associate_id1")
-            .param("password", "1234")
-    ).andDo(print())
+    mockMvc.perform(post("/login_proc.html").param("loginId", "associate_id1").param("password", "1234")).andDo(print())
         .andExpect(status().is3xxRedirection())
-        // .andExpect(request().sessionAttribute("SPRING_SECURITY_LAST_EXCEPTION.message", "로그인아이디 associate_id1 가 없습니다."))
+        // .andExpect(request().sessionAttribute("SPRING_SECURITY_LAST_EXCEPTION.message",
+        // "로그인아이디 associate_id1 가 없습니다."))
         .andExpect(redirectedUrl("/login.html?error=true"));
   }
 
   @Test
   @WithMockCustomUser("associate_id")
   public void loginAssociateUserTest() throws Exception {
-    mockMvc.perform(
-        get("/board/associate/list.html")
-    ).andDo(print())
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/board/associate/list.html")).andDo(print()).andExpect(status().isOk());
   }
 
   @Test
   @WithMockCustomUser("regular_id")
   public void loginRegularUserTest() throws Exception {
-    mockMvc.perform(
-        get("/board/regular/list.html")
-    ).andDo(print())
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/board/regular/list.html")).andDo(print()).andExpect(status().isOk());
   }
 
   /**
    * 준회원 권한을 가진 사용자가 정회원 권한만 접근할 수 있는 URL에 대한 테스트
+   * 
    * @throws Exception
    */
   @Test
   @WithMockCustomUser("associate_id")
   public void loginMismatchRoleAndUrlTest() throws Exception {
-    mockMvc.perform(
-        get("/board/regular/list.html")
-    ).andDo(print())
-        .andExpect(status().is(403));
+    mockMvc.perform(get("/board/regular/list.html")).andDo(print()).andExpect(status().is(403));
   }
 
 }

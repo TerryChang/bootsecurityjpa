@@ -20,8 +20,8 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
   MessageSource messageSource;
 
   @Override
-  protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken
-      authentication) throws AuthenticationException {
+  protected void additionalAuthenticationChecks(UserDetails userDetails,
+      UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
     Object salt = null;
 
@@ -32,26 +32,25 @@ public class CustomDaoAuthenticationProvider extends DaoAuthenticationProvider {
     if (authentication.getCredentials() == null) {
       logger.debug("Authentication failed: no credentials provided");
 
-      throw new BadCredentialsException(messages.getMessage(
-          "AbstractUserDetailsAuthenticationProvider.badCredentials",
-          "Bad credentials"));
+      throw new BadCredentialsException(
+          messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
     }
 
     String presentedPassword = authentication.getCredentials().toString();
 
-    if (!getPasswordEncoder().isPasswordValid(userDetails.getPassword(),
-        presentedPassword, salt)) {
+    if (!getPasswordEncoder().isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
       List<String> messageObjects = new ArrayList<>();
       messageObjects.add(userDetails.getUsername());
 
       logger.debug("Authentication failed: password does not match stored value");
 
-            /*
-            throw new BadCredentialsException(messages.getMessage(
-                    "spring.security.usernameNotFoundException.PasswordMistmatch",
-                    "Bad credentials"));
-            */
-      String message = messageSource.getMessage("spring.security.usernameNotFoundException.PasswordMismatch", messageObjects.toArray(new String[messageObjects.size()]), "Bad credentials", Locale.getDefault());
+      /*
+       * throw new BadCredentialsException(messages.getMessage(
+       * "spring.security.usernameNotFoundException.PasswordMistmatch",
+       * "Bad credentials"));
+       */
+      String message = messageSource.getMessage("spring.security.usernameNotFoundException.PasswordMismatch",
+          messageObjects.toArray(new String[messageObjects.size()]), "Bad credentials", Locale.getDefault());
       throw new BadCredentialsException(message);
     }
   }

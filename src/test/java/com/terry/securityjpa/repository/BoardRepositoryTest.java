@@ -41,24 +41,33 @@ public class BoardRepositoryTest {
   public void before() {
     String title = "테스트 제목 ";
     String contents = "테스트 내용 입니다";
-    Member member = memberRepository.findOne(1L);
-    for(int i=0; i < 17; i++) {
-      String newTitle = title + i + " 번째 타이틀입니다";
-      String newContents = contents + "\n" + i + "번째 컨텐츠입니다";
-      Board board = new Board(member, newTitle, newContents);
+    Member associateMember = memberRepository.findOne(1L);  // 준회원
+    Member regularMember = memberRepository.findOne(2L); // 정회원
+    for (int i = 0; i < 17; i++) {
+      String newTitle = "준회원 " + title + i + " 번째 타이틀입니다";
+      String newContents = "준회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
+      Board board = new Board(associateMember, newTitle, newContents, "associate");
+      boardRepository.save(board);
+      saveList.add(board);
+    }
+    
+    for (int i = 0; i < 13; i++) {
+      String newTitle = "정회원 " + title + i + " 번째 타이틀입니다";
+      String newContents = "정회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
+      Board board = new Board(regularMember, newTitle, newContents, "regular");
       boardRepository.save(board);
       saveList.add(board);
     }
   }
 
   @Test
-  public void 제목_Like_검색_페이징() {
+  public void 준회원게시판_제목_Like_검색_페이징() {
     Pageable pageable = new PageRequest(1, 5); // 2 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByTitleContainingOrderByIdxDesc("1", pageable);
+    Page<Board> result = boardRepository.findByBoardTypeAndTitleContainingOrderByIdxDesc("associate", "1", pageable);
     assertThat(result).isNotNull();
-    assertThat(result.getTotalElements()).isEqualTo(8);         // 전체 갯수
-    assertThat(result.getTotalPages()).isEqualTo(2);            // 전체 페이지수
-    assertThat(result.getNumberOfElements()).isEqualTo(3);      // 현재 보고자하는 페이지의 레코드 갯수
+    assertThat(result.getTotalElements()).isEqualTo(8); // 전체 갯수
+    assertThat(result.getTotalPages()).isEqualTo(2); // 전체 페이지수
+    assertThat(result.getNumberOfElements()).isEqualTo(3); // 현재 보고자하는 페이지의 레코드 갯수
     List<Board> boardList = result.getContent();
 
     // 예상 결과물을 만든다
@@ -71,19 +80,57 @@ public class BoardRepositoryTest {
   }
 
   @Test
-  public void 내용_Like_검색_페이징() {
+  public void 준회원게시판_내용_Like_검색_페이징() {
     Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByContentsContainingOrderByIdxDesc("2", pageable);
+    Page<Board> result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc("associate", "2", pageable);
     assertThat(result).isNotNull();
-    assertThat(result.getTotalElements()).isEqualTo(2);         // 전체 갯수
-    assertThat(result.getTotalPages()).isEqualTo(1);            // 전체 페이지수
-    assertThat(result.getNumberOfElements()).isEqualTo(2);      // 현재 보고자하는 페이지의 레코드 갯수
+    assertThat(result.getTotalElements()).isEqualTo(2); // 전체 갯수
+    assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
+    assertThat(result.getNumberOfElements()).isEqualTo(2); // 현재 보고자하는 페이지의 레코드 갯수
     List<Board> boardList = result.getContent();
 
     // 예상 결과물을 만든다
     List<Board> expectList = new ArrayList<>();
     expectList.add(saveList.get(12)); // 12
     expectList.add(saveList.get(2)); // 2
+
+    assertThat(boardList).isEqualTo(expectList);
+  }
+  
+  @Test
+  public void 정회원게시판_제목_Like_검색_페이징() {
+    Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
+    Page<Board> result = boardRepository.findByBoardTypeAndTitleContainingOrderByIdxDesc("regular", "1", pageable);
+    assertThat(result).isNotNull();
+    assertThat(result.getTotalElements()).isEqualTo(4); // 전체 갯수
+    assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
+    assertThat(result.getNumberOfElements()).isEqualTo(4); // 현재 보고자하는 페이지의 레코드 갯수
+    List<Board> boardList = result.getContent();
+
+    // 예상 결과물을 만든다
+    List<Board> expectList = new ArrayList<>();
+    expectList.add(saveList.get(29)); // 12
+    expectList.add(saveList.get(28)); // 11
+    expectList.add(saveList.get(27)); // 10
+    expectList.add(saveList.get(18)); // 1
+
+    assertThat(boardList).isEqualTo(expectList);
+  }
+
+  @Test
+  public void 정회원게시판_내용_Like_검색_페이징() {
+    Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
+    Page<Board> result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc("regular", "2", pageable);
+    assertThat(result).isNotNull();
+    assertThat(result.getTotalElements()).isEqualTo(2); // 전체 갯수
+    assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
+    assertThat(result.getNumberOfElements()).isEqualTo(2); // 현재 보고자하는 페이지의 레코드 갯수
+    List<Board> boardList = result.getContent();
+
+    // 예상 결과물을 만든다
+    List<Board> expectList = new ArrayList<>();
+    expectList.add(saveList.get(29)); // 12
+    expectList.add(saveList.get(19)); // 2
 
     assertThat(boardList).isEqualTo(expectList);
   }

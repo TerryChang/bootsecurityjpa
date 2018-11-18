@@ -14,7 +14,7 @@ public class ExtraLinkDialect extends AbstractProcessorDialect {
 
   public static final String NAME = "ExtraLink";
   public static final String DEFAULT_PREFIX = "th";
-  public static final int PROCESSOR_PRECEDENCE = 800;     // 현재 dialect의 우선순위를 정하는 변수(spring xml 설정시 order 속성을 생각하면 됨)
+  public static final int PROCESSOR_PRECEDENCE = 800; // 현재 dialect의 우선순위를 정하는 변수(spring xml 설정시 order 속성을 생각하면 됨)
   private String charset = "UTF-8";
 
   public ExtraLinkDialect() {

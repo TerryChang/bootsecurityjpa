@@ -19,25 +19,25 @@ import java.util.Set;
 @NoArgsConstructor
 @Slf4j
 @Entity
-@EntityListeners(value={AuditingEntityListener.class, CreateUpdateDTAuditEntityListener.class})
+@EntityListeners(value = { AuditingEntityListener.class, CreateUpdateDTAuditEntityListener.class })
 @Table(name = "URL_RESOURCES")
-@SequenceGenerator(name="UrlResourcesSequenceGenerator", sequenceName="SEQ_URL_RESOURCES", initialValue=1, allocationSize=1)
+@SequenceGenerator(name = "UrlResourcesSequenceGenerator", sequenceName = "SEQ_URL_RESOURCES", initialValue = 1, allocationSize = 1)
 @Access(AccessType.FIELD)
 public class UrlResources implements CreateUpdateDTAuditable {
 
   private Long idx;
 
-  @Column(name="RESOURCE_NAME")
+  @Column(name = "RESOURCE_NAME")
   private String resourceName;
 
-  @Column(name="RESOURCE_PATTERN")
+  @Column(name = "RESOURCE_PATTERN")
   private String resourcePattern;
 
-  @Column(name="REQUEST_MATCHER_TYPE")
+  @Column(name = "REQUEST_MATCHER_TYPE")
   @Enumerated(EnumType.STRING)
   private RequestMatcherType requestMatcherType;
 
-  @Column(name="ORDERNUM")
+  @Column(name = "ORDERNUM")
   private Short ordernum;
 
   @Embedded
@@ -45,17 +45,16 @@ public class UrlResources implements CreateUpdateDTAuditable {
   private CreateUpdateDT createUpdateDT;
 
   @Id
-  @Column(name="IDX")
-  @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="UrlResourcesSequenceGenerator")
+  @Column(name = "IDX")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "UrlResourcesSequenceGenerator")
   @Access(AccessType.PROPERTY)
   public Long getIdx() {
     return idx;
   }
 
   @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name="URL_RESOURCES_AUTHORITY"
-      , joinColumns = {@JoinColumn(name="URL_RESOURCES_IDX")}
-      , inverseJoinColumns = {@JoinColumn(name="AUTHORITY_IDX")})
+  @JoinTable(name = "URL_RESOURCES_AUTHORITY", joinColumns = {
+      @JoinColumn(name = "URL_RESOURCES_IDX") }, inverseJoinColumns = { @JoinColumn(name = "AUTHORITY_IDX") })
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<Authority> authoritySet = new HashSet<>();
@@ -66,7 +65,7 @@ public class UrlResources implements CreateUpdateDTAuditable {
   }
 
   public void removeAuthority(Authority authority) {
-    if(authority.getUrlResourcesSet().contains(this))
+    if (authority.getUrlResourcesSet().contains(this))
       authority.getUrlResourcesSet().remove(this);
     this.authoritySet.remove(authority);
   }

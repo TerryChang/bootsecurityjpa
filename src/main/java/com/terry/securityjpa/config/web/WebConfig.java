@@ -32,10 +32,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   private String appSummernoteImages;
 
   @Bean
-  public SpringTemplateEngine templateEngine(ITemplateResolver templateResolver, SpringSecurityDialect sec, Java8TimeDialect java8TimeDialect) {
+  public SpringTemplateEngine templateEngine(ITemplateResolver templateResolver, SpringSecurityDialect sec,
+      Java8TimeDialect java8TimeDialect) {
     final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
     templateEngine.setTemplateResolver(templateResolver);
-    // templateEngine.addDialect(new LayoutDialect());     // thymeleaf 에서 layout을 사용하기 위해 추가
+    // templateEngine.addDialect(new LayoutDialect()); // thymeleaf 에서 layout을 사용하기
+    // 위해 추가
     templateEngine.addDialect(sec); // Enable use of "sec"
     templateEngine.addDialect(java8TimeDialect); // Thymeleaf에서 Java8의 LocalDateTime을 출력하기 위해 사용된다
     templateEngine.addDialect(new ExtraLinkDialect());
@@ -62,6 +64,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   /**
    * Custom HttpMessageConverter를 등록할때 해당 Custom HttpMessageConverter를 생성한뒤에
    * HttpMesssageConverters 객체에 ArrayList 에 추가된 형태로 해서 넣는다
+   * 
    * @return
    */
   @Bean

@@ -21,7 +21,7 @@ public class FileHttpMessageConverter implements HttpMessageConverter<File> {
 
   private List<MediaType> supportedMediaTypes = new ArrayList<MediaType>();
 
-  public FileHttpMessageConverter(){
+  public FileHttpMessageConverter() {
     this.supportedMediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
   }
 
@@ -41,19 +41,22 @@ public class FileHttpMessageConverter implements HttpMessageConverter<File> {
   }
 
   @Override
-  public File read(Class<? extends File> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+  public File read(Class<? extends File> clazz, HttpInputMessage inputMessage)
+      throws IOException, HttpMessageNotReadableException {
     return null;
   }
 
   @Override
-  public void write(File file, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+  public void write(File file, MediaType contentType, HttpOutputMessage outputMessage)
+      throws IOException, HttpMessageNotWritableException {
 
     if (contentType == null) {
       contentType = MediaType.APPLICATION_OCTET_STREAM;
     }
 
     HttpHeaders headers = outputMessage.getHeaders();
-    // response.setHeader("Content-Disposition", "attachment;fileName=\"" + org_file_name + "\";");
+    // response.setHeader("Content-Disposition", "attachment;fileName=\"" +
+    // org_file_name + "\";");
     headers.setContentType(contentType);
     headers.set("Content-Length", Long.toString(file.length()));
     headers.set("Content-Transfer-Encoding", "binary");

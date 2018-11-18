@@ -37,18 +37,18 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 @Entity
-@EntityListeners(value={AuditingEntityListener.class, CreateUpdateDTAuditEntityListener.class})
+@EntityListeners(value = { AuditingEntityListener.class, CreateUpdateDTAuditEntityListener.class })
 @Table(name = "ROLE")
-@SequenceGenerator(name="RoleSequenceGenerator", sequenceName="SEQ_ROLE", initialValue=1, allocationSize=1)
+@SequenceGenerator(name = "RoleSequenceGenerator", sequenceName = "SEQ_ROLE", initialValue = 1, allocationSize = 1)
 @Access(AccessType.FIELD)
 public class Role implements CreateUpdateDTAuditable {
 
   private Long idx;
 
-  @Column(name="ROLE_NAME")
+  @Column(name = "ROLE_NAME")
   private String roleName;
 
-  @Column(name="ROLE_DESC")
+  @Column(name = "ROLE_DESC")
   private String roleDesc;
 
   @Embedded
@@ -56,33 +56,32 @@ public class Role implements CreateUpdateDTAuditable {
   private CreateUpdateDT createUpdateDT;
 
   @Id
-  @Column(name="IDX")
-  @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="RoleSequenceGenerator")
+  @Column(name = "IDX")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RoleSequenceGenerator")
   @Access(AccessType.PROPERTY)
   public Long getIdx() {
     return idx;
   }
 
   @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name="ROLE_AUTHORITY"
-      , joinColumns = {@JoinColumn(name="ROLE_IDX")}
-      , inverseJoinColumns = {@JoinColumn(name="AUTHORITY_IDX")})
+  @JoinTable(name = "ROLE_AUTHORITY", joinColumns = { @JoinColumn(name = "ROLE_IDX") }, inverseJoinColumns = {
+      @JoinColumn(name = "AUTHORITY_IDX") })
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<Authority> authoritySet = new HashSet<>();
 
-  @ManyToOne(fetch=FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "PARENT_ROLE_IDX")
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Role parentRole;
 
-  @OneToMany(fetch=FetchType.LAZY, mappedBy = "parentRole")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentRole")
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<Role> childRoleSet = new HashSet<>();
 
-  @ManyToMany(fetch=FetchType.LAZY, mappedBy = "roleSet")
+  @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roleSet")
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<Member> memberSet = new HashSet<>();

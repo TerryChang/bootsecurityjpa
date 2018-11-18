@@ -29,7 +29,7 @@ public class MemberToMemberDTOConverter implements CustomConverter<Member, Membe
   @Override
   public List<MemberDTO> convertAll(List<Member> members) {
     List<MemberDTO> result = new ArrayList<>();
-    for(Member member : members) {
+    for (Member member : members) {
       result.add(new MemberDTO(member));
     }
     return result;
@@ -38,7 +38,7 @@ public class MemberToMemberDTOConverter implements CustomConverter<Member, Membe
   @Override
   public Set<MemberDTO> convertAll(Set<Member> members) {
     Set<MemberDTO> result = new HashSet<>();
-    for(Member member : members) {
+    for (Member member : members) {
       result.add(new MemberDTO(member));
     }
     return result;

@@ -12,5 +12,5 @@ public @interface WithMockCustomUser {
 
   String name() default "Rob Winch";
 
-  String password() default  "";
+  String password() default "";
 }

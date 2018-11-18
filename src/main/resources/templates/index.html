@@ -21,7 +21,8 @@
 		      	<li><a href="#">정회원 게시판</a></li>
 		      	<li><a href="#">관리자 게시판</a></li>
 			    <li sec:authorize="isAnonymous()"><a th:href="@{/login.html}">로그인</a></li>
-			    <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li>
+			    <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li><!-- 로그인 아이디 정보를 가져올때 -->
+			    <!-- <li sec:authorize="isAuthenticated()"><a href="#" th:text="${#authentication.principal.getMember().getName()}">로그인 아이디</a></li> --><!-- 로그인한 사용자 이름등 spring security에서 취급하지 않는 정보를 가져올때 -->
 			    <li sec:authorize="isAuthenticated()">
 			    	<a th:href="@{/logout.html}">로그아웃</a>
 			    </li>

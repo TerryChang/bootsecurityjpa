@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -20,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.terry.securityjpa.config.converter.attribute.BoardTypeConverter;
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
 import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
@@ -34,58 +36,63 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Slf4j
 @Entity
-@EntityListeners(value={CreateUpdateDTAuditEntityListener.class})
+@EntityListeners(value = { CreateUpdateDTAuditEntityListener.class })
 @Table(name = "BOARD")
-@SequenceGenerator(name="BoardSequenceGenerator", sequenceName="SEQ_BOARD", initialValue=1, allocationSize=1)
+@SequenceGenerator(name = "BoardSequenceGenerator", sequenceName = "SEQ_BOARD", initialValue = 1, allocationSize = 1)
 @Access(AccessType.FIELD)
 public class Board implements CreateUpdateDTAuditable {
 
   private Long idx;
 
-  @Column(name="TITLE")
+  @Column(name = "TITLE")
   private String title;
 
-  @Column(name="CONTENTS")
+  @Column(name = "CONTENTS")
   @Lob
   private String contents;
+  
+  @Column(name="BOARD_TYPE")
+  @Convert(converter = BoardTypeConverter.class)
+  private String boardType;
 
   @Embedded
   @EqualsAndHashCode.Exclude
   private CreateUpdateDT createUpdateDT;
 
   @Id
-  @Column(name="IDX")
-  @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="BoardSequenceGenerator")
+  @Column(name = "IDX")
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BoardSequenceGenerator")
   @Access(AccessType.PROPERTY)
   public Long getIdx() {
     return idx;
   }
 
   @ManyToOne
-  @JoinColumn(name="MEMBER_IDX", nullable = false)
+  @JoinColumn(name = "MEMBER_IDX", nullable = false)
   @ToString.Exclude
   private Member member;
 
-  @OneToMany(fetch=FetchType.LAZY, mappedBy = "board")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Set<BoardFile> boardFileSet = new HashSet<>();
 
-  public Board(Member member, String title, String contents) {
+  public Board(Member member, String title, String contents, String boardType) {
     this.member = member;
     this.title = title;
     this.contents = contents;
+    this.boardType = boardType;
   }
 
   public void addBoardFile(BoardFile boardFile) {
     boardFileSet.add(boardFile);
-    if(boardFile.getBoard() != this) {
+    if (boardFile.getBoard() != this) {
       boardFile.setBoard(this);
     }
   }
 
   public void removeBoardFile(BoardFile boardFile) {
-    if(boardFile.getBoard() == this) {
+    if (boardFile.getBoard() == this) {
       boardFileSet.remove(boardFile);
     }
     boardFile.setBoard(null);

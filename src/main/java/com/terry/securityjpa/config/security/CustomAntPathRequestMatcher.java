@@ -13,13 +13,12 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * AntPathRequestMatcher 클래스를 customize한 클래스이다.
- * AntPathRequestMatcher 클래스는 HttpServletRequest의 QueryString을 얻어와서 Pattern Match를 하지 않기 때문에
- * QueryString이 있을 경우 QueryString을 얻어와서 Pattern Match를 하게 된다
- * 그렇지 않은 경우엔 AntPathRequestMatcher 클래스와 같은 기능을 한다
- * AntPathRequestMatcher 클래스가 final로 선언되어 있어서 상속을 받을수가 없기 때문에..
- * 차후에 Ant Pattern Match 기반의 클래스를 또 만들어야 할 경우 상속받아 제작하기 위해서
- * 이 클래스는 final로 선언하지는 않았다
+ * AntPathRequestMatcher 클래스를 customize한 클래스이다. AntPathRequestMatcher 클래스는
+ * HttpServletRequest의 QueryString을 얻어와서 Pattern Match를 하지 않기 때문에 QueryString이
+ * 있을 경우 QueryString을 얻어와서 Pattern Match를 하게 된다 그렇지 않은 경우엔 AntPathRequestMatcher
+ * 클래스와 같은 기능을 한다 AntPathRequestMatcher 클래스가 final로 선언되어 있어서 상속을 받을수가 없기 때문에..
+ * 차후에 Ant Pattern Match 기반의 클래스를 또 만들어야 할 경우 상속받아 제작하기 위해서 이 클래스는 final로 선언하지는
+ * 않았다
  */
 @Slf4j
 public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
@@ -32,8 +31,8 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
   private final boolean caseSensitive;
 
   /**
-   * Creates a matcher with the specific pattern which will match all HTTP methods in a
-   * case insensitive manner.
+   * Creates a matcher with the specific pattern which will match all HTTP methods
+   * in a case insensitive manner.
    *
    * @param pattern the ant pattern to use for matching
    */
@@ -42,53 +41,48 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
   }
 
   /**
-   * Creates a matcher with the supplied pattern and HTTP method in a case insensitive
-   * manner.
+   * Creates a matcher with the supplied pattern and HTTP method in a case
+   * insensitive manner.
    *
-   * @param pattern the ant pattern to use for matching
-   * @param httpMethod the HTTP method. The {@code matches} method will return false if
-   * the incoming request doesn't have the same method.
+   * @param pattern    the ant pattern to use for matching
+   * @param httpMethod the HTTP method. The {@code matches} method will return
+   *                   false if the incoming request doesn't have the same method.
    */
   public CustomAntPathRequestMatcher(String pattern, String httpMethod) {
     this(pattern, httpMethod, true);
   }
 
   /**
-   * Creates a matcher with the supplied pattern which will match the specified Http
-   * method
+   * Creates a matcher with the supplied pattern which will match the specified
+   * Http method
    *
-   * @param pattern the ant pattern to use for matching
-   * @param httpMethod the HTTP method. The {@code matches} method will return false if
-   * the incoming request doesn't doesn't have the same method.
+   * @param pattern       the ant pattern to use for matching
+   * @param httpMethod    the HTTP method. The {@code matches} method will return
+   *                      false if the incoming request doesn't doesn't have the
+   *                      same method.
    * @param caseSensitive true if the matcher should consider case, else false
    */
-  public CustomAntPathRequestMatcher(String pattern, String httpMethod,
-                                     boolean caseSensitive) {
+  public CustomAntPathRequestMatcher(String pattern, String httpMethod, boolean caseSensitive) {
     Assert.hasText(pattern, "Pattern cannot be null or empty");
     this.caseSensitive = caseSensitive;
 
     if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
       pattern = MATCH_ALL;
       this.matcher = null;
-    }
-    else {
+    } else {
       // If the pattern ends with {@code /**} and has no other wildcards or path
       // variables, then optimize to a sub-path match
       if (pattern.endsWith(MATCH_ALL)
-          && (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1
-          && pattern.indexOf('}') == -1)
+          && (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1 && pattern.indexOf('}') == -1)
           && pattern.indexOf("*") == pattern.length() - 2) {
-        this.matcher = new SubpathMatcher(
-            pattern.substring(0, pattern.length() - 3), caseSensitive);
-      }
-      else {
+        this.matcher = new SubpathMatcher(pattern.substring(0, pattern.length() - 3), caseSensitive);
+      } else {
         this.matcher = new SpringAntMatcher(pattern, caseSensitive);
       }
     }
 
     this.pattern = pattern;
-    this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod)
-        : null;
+    this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
   }
 
   @Override
@@ -97,8 +91,7 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
     if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
         && this.httpMethod != valueOf(request.getMethod())) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Request '" + request.getMethod() + " "
-            + getRequestPath(request) + "'" + " doesn't match '"
+        logger.debug("Request '" + request.getMethod() + " " + getRequestPath(request) + "'" + " doesn't match '"
             + this.httpMethod + " " + this.pattern);
       }
 
@@ -107,23 +100,21 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
 
     if (this.pattern.equals(MATCH_ALL)) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Request '" + getRequestPath(request)
-            + "' matched by universal pattern '/**'");
+        logger.debug("Request '" + getRequestPath(request) + "' matched by universal pattern '/**'");
       }
 
       return true;
     }
 
     String url = null;
-    if(request.getQueryString() != null) {
+    if (request.getQueryString() != null) {
       url = getRequestQueryStringPath(request);
     } else {
       url = getRequestPath(request);
     }
 
     if (logger.isDebugEnabled()) {
-      logger.debug("Checking match of request : '" + url + "'; against '"
-          + this.pattern + "'");
+      logger.debug("Checking match of request : '" + url + "'; against '" + this.pattern + "'");
     }
 
     return this.matcher.matches(url);
@@ -140,7 +131,7 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
 
   protected String getRequestQueryStringPath(HttpServletRequest request) {
     String url = request.getServletPath();
-    if(request.getQueryString() != null) {
+    if (request.getQueryString() != null) {
       url += "?" + request.getQueryString();
     }
     return url;
@@ -195,8 +186,8 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
   }
 
   /**
-   * Provides a save way of obtaining the HttpMethod from a String. If the method is
-   * invalid, returns null.
+   * Provides a save way of obtaining the HttpMethod from a String. If the method
+   * is invalid, returns null.
    *
    * @param method the HTTP method to use.
    *
@@ -205,8 +196,7 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
   protected static HttpMethod valueOf(String method) {
     try {
       return HttpMethod.valueOf(method);
-    }
-    catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
     }
 
     return null;
@@ -255,7 +245,7 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
     private final boolean caseSensitive;
 
     private SubpathMatcher(String subpath, boolean caseSensitive) {
-      assert!subpath.contains("*");
+      assert !subpath.contains("*");
       this.subpath = caseSensitive ? subpath : subpath.toLowerCase();
       this.length = subpath.length();
       this.caseSensitive = caseSensitive;
@@ -266,8 +256,7 @@ public class CustomAntPathRequestMatcher implements RequestMatcher, RequestVaria
       if (!this.caseSensitive) {
         path = path.toLowerCase();
       }
-      return path.startsWith(this.subpath)
-          && (path.length() == this.length || path.charAt(this.length) == '/');
+      return path.startsWith(this.subpath) && (path.length() == this.length || path.charAt(this.length) == '/');
     }
 
     @Override

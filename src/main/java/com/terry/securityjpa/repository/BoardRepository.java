@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
-  Page<Board> findByTitleContainingOrderByIdxDesc(String title, Pageable pageable);
-  Page<Board> findByContentsContainingOrderByIdxDesc(String contents, Pageable pageable);
+  Page<Board> findByBoardTypeAndTitleContainingOrderByIdxDesc(String boardType, String title, Pageable pageable);
+  Page<Board> findByBoardTypeAndContentsContainingOrderByIdxDesc(String boardType, String contents, Pageable pageable);
 }

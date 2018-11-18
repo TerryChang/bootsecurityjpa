@@ -13,26 +13,27 @@ public class MainController {
   @Autowired
   PasswordEncoder passwordEncoder;
 
-  @GetMapping(value={"/", "/index"})
+  @GetMapping(value = { "/", "/index" })
   public String index(Model model) {
     model.addAttribute("test", "");
     return "/index";
   }
 
-  @GetMapping(value="/login")
-  public String login(){
+  @GetMapping(value = "/login")
+  public String login() {
     return "/login";
   }
 
-  @GetMapping(value="/errorpage/sessionError")
-  public String sessionError(@RequestParam(value="error") String error, Model model) {
-    if(error == null) error = "etc";
+  @GetMapping(value = "/errorpage/sessionError")
+  public String sessionError(@RequestParam(value = "error") String error, Model model) {
+    if (error == null)
+      error = "etc";
     model.addAttribute("error", error);
     return "/errorpage/sessionError";
   }
 
-  @GetMapping(value="/password")
-  public String password(@RequestParam(value="password") String password, Model model) {
+  @GetMapping(value = "/password")
+  public String password(@RequestParam(value = "password") String password, Model model) {
     String encodedPassword = passwordEncoder.encode(password);
 
     model.addAttribute("password", password);

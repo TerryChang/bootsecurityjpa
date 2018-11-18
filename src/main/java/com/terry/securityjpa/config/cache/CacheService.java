@@ -39,29 +39,31 @@ public class CacheService {
 
   /**
    * RequestMatcher 에 대한 Authority 객체들의 List들을 보관한 LinkedHashMap을 Cache로 관리하며 작업한다
+   * 
    * @return
    */
-  @Cacheable(value="urlResourceList")
+  @Cacheable(value = "urlResourceList")
   public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getUrlResourceList() {
     LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();
     List<UrlResources> urlResourcesList = urlResourcesRepository.findAllUrlResources();
 
-    for(UrlResources urlResources : urlResourcesList) {
-      // RequestMatcher requestMatcher = new CustomAntPathRequestMatcher(urlResources.getResourcePattern());
+    for (UrlResources urlResources : urlResourcesList) {
+      // RequestMatcher requestMatcher = new
+      // CustomAntPathRequestMatcher(urlResources.getResourcePattern());
       RequestMatcher requestMatcher = null;
       RequestMatcherType requestMatcherType = urlResources.getRequestMatcherType();
       String resourcePattern = urlResources.getResourcePattern();
-      if(requestMatcherType == RequestMatcherType.ANT) {
+      if (requestMatcherType == RequestMatcherType.ANT) {
         requestMatcher = new AntPathRequestMatcher(resourcePattern);
-      }else if(requestMatcherType == RequestMatcherType.QUERYSTRING) {
+      } else if (requestMatcherType == RequestMatcherType.QUERYSTRING) {
         requestMatcher = new CustomAntPathRequestMatcher(resourcePattern);
-      }else if(requestMatcherType == RequestMatcherType.REGEX) {
+      } else if (requestMatcherType == RequestMatcherType.REGEX) {
         requestMatcher = new RegexRequestMatcher(resourcePattern, null);
       }
 
       List<ConfigAttribute> configAttributeList = new ArrayList<>();
       Set<Authority> authoritySet = urlResources.getAuthoritySet();
-      for(Authority authority : authoritySet) {
+      for (Authority authority : authoritySet) {
         configAttributeList.add(new SecurityConfig(authority.getAuthorityName()));
       }
       result.put(requestMatcher, configAttributeList);
@@ -71,23 +73,23 @@ public class CacheService {
   }
 
   /**
-   * getUrlResourceList 로 인해 생성된 cache를 지우기 위해 이 메소드를 둔다
-   * 실제 작업하는 내용은 없다. @CacheEvict 어노테이션으로 인해 cache가 지워지기 때문이다
+   * getUrlResourceList 로 인해 생성된 cache를 지우기 위해 이 메소드를 둔다 실제 작업하는 내용은
+   * 없다. @CacheEvict 어노테이션으로 인해 cache가 지워지기 때문이다
    */
-  @CacheEvict(value="urlResourceList")
+  @CacheEvict(value = "urlResourceList")
   public void clearCacheUrlResourceList() {
 
   }
 
-  @Cacheable(value="roleAuthorities")
+  @Cacheable(value = "roleAuthorities")
   public Map<Role, List<GrantedAuthority>> getRoleAuthorities() {
     Map<Role, List<GrantedAuthority>> result = new HashMap<>();
     List<Role> roleList = roleRepository.getRoleWithAuthority();
 
-    for(Role role : roleList) {
+    for (Role role : roleList) {
       Set<Authority> authoritySet = role.getAuthoritySet();
       List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
-      for(Authority authority : authoritySet) {
+      for (Authority authority : authoritySet) {
         grantedAuthorityList.add(new SimpleGrantedAuthority(authority.getAuthorityName()));
       }
       result.put(role, grantedAuthorityList);
@@ -97,7 +99,7 @@ public class CacheService {
 
   }
 
-  @CacheEvict(value="roleAuthorities")
+  @CacheEvict(value = "roleAuthorities")
   public void clearCacheRoleAuthorities() {
 
   }

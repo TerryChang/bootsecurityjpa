@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @Embeddable
 public class CreateUpdateDT {
 
-    @Column(name="CREATE_DT", nullable = false, updatable = false)
-    private LocalDateTime createDT;
+  @Column(name = "CREATE_DT", nullable = false, updatable = false)
+  private LocalDateTime createDT;
 
-    @Column(name="UPDATE_DT", insertable = false, updatable = true)
-    private LocalDateTime updateDT;
+  @Column(name = "UPDATE_DT", insertable = false, updatable = true)
+  private LocalDateTime updateDT;
 
 }

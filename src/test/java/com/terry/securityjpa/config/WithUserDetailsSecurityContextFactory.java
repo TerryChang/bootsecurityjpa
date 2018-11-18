@@ -23,7 +23,8 @@ public class WithUserDetailsSecurityContextFactory implements WithSecurityContex
   public SecurityContext createSecurityContext(WithMockCustomUser withMockCustomUser) {
     String loginId = withMockCustomUser.value();
     UserDetails userDetails = userDetailsService.loadUserByUsername(loginId);
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+        userDetails.getAuthorities());
     SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
     securityContext.setAuthentication(authentication);
     return securityContext;

@@ -20,9 +20,9 @@ public class MatcherTest {
     // 정화원 등급 정보를 넘겨줘서 패턴이 틀리게 된 것을 확인
     String url6 = "/board/list.html?abc=def&hij=lmn1&type=regular&myparam1=kkk&myparam2=hhh";
 
-    String pattern = "\\/board\\/list\\.html((\\?type=associate(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*)|" +
-        "(\\?[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*\\&type=associate" +
-        "(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*))";
+    String pattern = "\\/board\\/list\\.html((\\?type=associate(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*)|"
+        + "(\\?[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*\\&type=associate"
+        + "(\\&[a-zA-Z0-9_]+\\=[a-zA-Z0-9_]+)*))";
     assertThat(url1.matches(pattern)).isEqualTo(true);
     assertThat(url2.matches(pattern)).isEqualTo(true);
     assertThat(url3.matches(pattern)).isEqualTo(true);

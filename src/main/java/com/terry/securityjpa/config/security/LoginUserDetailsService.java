@@ -30,13 +30,14 @@ public class LoginUserDetailsService implements UserDetailsService {
 
     Member member = memberRepository.findMemberByLoginId(username);
 
-    if(member == null) {
+    if (member == null) {
       // 로그인 하는 과정에 있어서 사용자를 발견하지 못하면 로그인 한 아이디가 존재하지 않는건지 아니면 비밀번호가 맞지 않아 못찾는건지 확인한다
       String message = "";
       List<String> messageObjects = new ArrayList<>();
       messageObjects.add(username);
-      if(memberRepository.countMemberByLoginId(username) == 0){
-        message = messageSource.getMessage("spring.security.usernameNotFoundException.NotExistUser", messageObjects.toArray(new String[messageObjects.size()]), Locale.getDefault());
+      if (memberRepository.countMemberByLoginId(username) == 0) {
+        message = messageSource.getMessage("spring.security.usernameNotFoundException.NotExistUser",
+            messageObjects.toArray(new String[messageObjects.size()]), Locale.getDefault());
         throw new UsernameNotFoundException(message);
       }
     }

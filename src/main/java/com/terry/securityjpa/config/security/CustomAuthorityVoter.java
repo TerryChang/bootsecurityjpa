@@ -19,17 +19,15 @@ public class CustomAuthorityVoter implements AccessDecisionVoter<Object> {
   }
 
   /*
-  public CustomAuthorityVoter(CacheService cacheService) {
-    this.cacheService = cacheService;
-  }
-  */
+   * public CustomAuthorityVoter(CacheService cacheService) { this.cacheService =
+   * cacheService; }
+   */
 
   @Override
   public boolean supports(ConfigAttribute attribute) {
     if (attribute.getAttribute() != null) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -41,20 +39,21 @@ public class CustomAuthorityVoter implements AccessDecisionVoter<Object> {
 
   @Override
   public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-    if(authentication == null) {
+    if (authentication == null) {
       return ACCESS_DENIED;
     }
     int result = ACCESS_ABSTAIN;
 
-    MemberDTO memberDTO = (MemberDTO)authentication.getPrincipal();                         // 로그인 계정정보
-    Set<GrantedAuthority> grantedAuthoritySet = memberDTO.getGrantedAuthoritySet();         // 계정정보 안에 저장되어 있는 별개 권한 정보
+    MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal(); // 로그인 계정정보
+    Set<GrantedAuthority> grantedAuthoritySet = memberDTO.getGrantedAuthoritySet(); // 계정정보 안에 저장되어 있는 별개 권한 정보
 
     for (ConfigAttribute attribute : attributes) {
       if (this.supports(attribute)) {
         result = ACCESS_DENIED;
 
-        for(GrantedAuthority grantedAuthority : grantedAuthoritySet) {
-          if(attribute.getAttribute().equals(grantedAuthority.getAuthority())) {            // 별개 권한과 자원에 있는 권한이 같으면 접근 가능하다고 설정해준다
+        for (GrantedAuthority grantedAuthority : grantedAuthoritySet) {
+          if (attribute.getAttribute().equals(grantedAuthority.getAuthority())) { // 별개 권한과 자원에 있는 권한이 같으면 접근 가능하다고
+                                                                                  // 설정해준다
             return ACCESS_GRANTED;
           }
         }
