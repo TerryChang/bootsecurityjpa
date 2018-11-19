@@ -1,6 +1,8 @@
 # Hibernate5 를 사용시 @SequenceGenerator 어노테이션을 사용할 경우 deprecated 된 org.hibernate.id.SequenceGenerator를
 # 사용한다는 문구가 나온다. 이를 해결하기 위해 spring.jpa.properties.hibernate.id.new_generator_mappings 를 true로 설정해서
 # org.hibernate.id.enhanced.SequenceStyleGenerator 를 사용하게끔 하도록 설정해주면 그 문구가 나타나지 않는다
+# 2018년 11월 20일 추가 : spring.jpa.properties.hibernate.id.new_generator_mappings 와 같은 역할을 하는 것이 
+# spring.jpa.hibernate.use-new-id-generator-mappings 프로퍼티여서 이걸로 수정
 spring:
   profiles:
     active: local
@@ -11,10 +13,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        id:
-          new_generator_mappings: true
+      use-new-id-generator-mappings : true
+#    properties:
+#      hibernate:
+#        id:
+#          new_generator_mappings: true
   messages:
     always-use-message-format: false
     cache-seconds: 1

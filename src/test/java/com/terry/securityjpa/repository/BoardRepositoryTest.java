@@ -46,6 +46,8 @@ public class BoardRepositoryTest {
   MemberRepository memberRepository;
 
   List<Board> saveList = new ArrayList<>();
+  
+  int rowCount = -1;
 
   @Before
   public void before() {
@@ -106,12 +108,50 @@ public class BoardRepositoryTest {
 
     assertThat(boardList).isEqualTo(expectList);
   }
-
+  
+  /**
+   * 엔티티 삭제 작업은 먼저 영속성 컨텍스트에 엔티티가 올라와 있어야 한다.
+   * 이 테스트의 경우 이 테스트 작업을 하기 전에 before 메소드를 통해 등록하는 작업을 진행하면서 엔티티가 이미 영속성 컨텍스트에 올라와 있는 상황이기 때문에
+   * 별도 조회작업을 하지 않았으나 만약 영속성 컨텍스트에 없는 엔티티를 조회하려 할 경우 delete 메소드는 내부적으로 select문을 한번 실행하여
+   * 삭제하고자 하는 엔티티를 먼저 영속성 컨텍스트에 올려놓는 작업을 진행하게 된다
+   * 이 부분에 대해 알고 있어야 다른 사람들에게 이해시키기가 쉽다
+   * 단일건을 삭제할 경우에는 부담이 가지 않지만 여러개를 삭제하는 작업을 진행할경우 삭제할 건들을 한건 조회하고 삭제하고 한건 조회하고 삭제하고 하는 식의
+   * 이런 반복작업이 벌어지기 때문에 이러한 상황이 퍼포먼스에 영향을 줄 수 있다.
+   * 이런 상황일때는 bulk 삭제를 진행하면 해결이 되지만 bulk 삭제의 경우 오히려 영속성 컨텍스트를 거치지 않고 바로 database에 SQL문을 바로 날리기 때문에
+   * 영속성 컨텍스트에 이미 올라와 있는 엔티티가 bulk 삭제 대상이 되는 엔티티가 되지 않도록 주의해야 한다
+   * 
+   * 단일 삭제 테스트를 진행할때는 before 메소드를 통해 등록된 엔티티를 삭제하는 것이 아니라 현재 진행하는 테스트 메소드에서 엔티티를 등록한뒤 
+   * 이를 삭제하는 방법으로 진행한다
+   * 왜냐면 before 메소드가 테스트 메소드 실행시 매번 실행되기 때문에
+   * 삭제 테스트 메소드 시작전에 실행되는 before 메소드에서 사용된 시퀀스 값을 알 수 있는 방법이 없다
+   * 그래서 테스트 메소드에서 엔티티 객체 하나를 등록한뒤 이를 삭제하는 방법으로 진행한다
+   */
   @Test
-  public void 게시판_삭제_테스트() {
+  public void 게시판_단일_삭제_테스트() {
+    String newTitle = "준회원 타이틀입니다";
+    String newContents = "준회원 컨텐츠입니다";
+    Member associateMember = memberRepository.findOne(1L);  // 준회원
+    Board board = new Board(associateMember, newTitle, newContents, "associate");
+    boardRepository.save(board);
+    boardRepository.flush();
+    
+    Long idx = board.getIdx();
+    
+    boardRepository.delete(idx);
+    Board selectBoard = boardRepository.findOne(idx);
+    assertThat(selectBoard).isNull();
+  }
+
+  /**
+   * deleteAllByIdxIn 메소드는 @Modify와 @Query를 이용한 bulk 삭제 작업이기 때문에 
+   * 영속성 컨텍스트를 거치지 않고 바로 database에 작업을 진행한다
+   * 그래서 이를 확인할려면 Connection 객체를 얻어와서 직접 SQL문을 실행하여 관련 레코드가 존재하는지 확인하는 방법으로 진행한다 
+   * @throws Exception
+   */
+  @Test
+  public void 게시판_복수_삭제_테스트() throws Exception {
     Long [] idxs = {3L, 4L, 5L};
     boardRepository.deleteAllByIdxIn(Arrays.asList(idxs));
-    int rowCount = -1;
     Session session = em.unwrap(Session.class);
     session.doWork(new Work() {
       @Override
@@ -119,8 +159,11 @@ public class BoardRepositoryTest {
         Statement stmt = connection.prepareStatement("select count(idx) from board where idx in (3,4,5)");
         ResultSet rs = ((PreparedStatement) stmt).executeQuery();
         while(rs.next()) {
-          int rowCount = rs.getInt(0);
+          rowCount = rs.getInt(1);
         }
+        
+        rs.close();
+        stmt.close();
       }
     });
   }

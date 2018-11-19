@@ -1,13 +1,15 @@
 package com.terry.securityjpa.dto;
 
-import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
 public class SearchDTO implements Pageable {

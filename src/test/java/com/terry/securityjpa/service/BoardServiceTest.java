@@ -1,10 +1,13 @@
 package com.terry.securityjpa.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.terry.securityjpa.dto.SearchDTO;
-import com.terry.securityjpa.repository.BoardRepository;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,24 +15,28 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.terry.securityjpa.dto.SearchDTO;
 import com.terry.securityjpa.entity.Board;
 import com.terry.securityjpa.entity.Member;
+import com.terry.securityjpa.repository.BoardRepository;
 import com.terry.securityjpa.repository.MemberRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("local")
+@Slf4j
 @Transactional
 public class BoardServiceTest {
 
+  @PersistenceContext
+  EntityManager entityManager;
+  
   @Autowired
   MemberRepository memberRepository;
 
@@ -127,11 +134,18 @@ public class BoardServiceTest {
 
   @Test
   public void 준회원게시판_삭제_테스트() {
-    Board board = boardService.view(3L);
+    // Board board = boardService.view(3L);
+    logger.info("준회원게시판_삭제_테스트 시작");
     boardService.delete(3L);
-    boardRepository.flush();
+    // boardRepository.flush();
+    if(entityManager.contains(boardService.view(3L))) {
+      logger.info("엔티티 존재함");
+    } else {
+      logger.info("엔티티 존재하지 않음");
+    }
     Board selectBoard = boardService.view(3L); // 삭제를 할 경우 영속성 컨텍스트에서 엔티티가 지워지기 때문에 이 상태에서 select 를 하면 영속성 컨텍스트에 없으므로 실제로 DB에 조회하는 작업을 거친다
     assertThat(selectBoard).isNull();
+    logger.info("준회원게시판_삭제_테스트 종료");
   }
 
   @Test
@@ -177,6 +191,6 @@ public class BoardServiceTest {
   
   @After
   public void after() {
-    
+    saveList.clear();
   }
 }
