@@ -1,5 +1,6 @@
 package com.terry.securityjpa.dto;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
+@AllArgsConstructor
 @Slf4j
 public class SearchDTO implements Pageable {
   private String searchType;
@@ -27,10 +29,17 @@ public class SearchDTO implements Pageable {
     return pageSize;
   }
 
+  /**
+   * Pageable을 구현할때는 getOffset 메소드를 반드시 의미있게 구현해줘야 한다
+   * 단순히 page 번호와 pagesize만 넘겨주면 페이징 쿼리를 해주는 Database에서는 문제가 없지만
+   * limit 과 offset을 사용하는  페이징 쿼리를 구현하는 Database의 경우 이 offset을 Spring Data가 내부적으로 getPageNumber() * getPageSize()를 하는 것이 아니라
+   * getOffset() 메소드를 통해 offset을 구하기 때문에 이 offset도 의미있게 구현해주어야 한다(단순히 return 0 이런식의 무의미한 구현을 하지 말라는 뜻)
+   * @return
+   */
   @Override
   public int getOffset() {
     // TODO Auto-generated method stub
-    return 0;
+    return pageNo * pageSize;
   }
 
   @Override

@@ -1,7 +1,10 @@
 package com.terry.securityjpa.repository;
 
+import com.terry.securityjpa.dto.SearchDTO;
 import com.terry.securityjpa.entity.Board;
 import com.terry.securityjpa.entity.Member;
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +19,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("local")
 @Transactional
 public class BoardRepositoryTest {
+
+  @PersistenceContext
+  private EntityManager em;
 
   @Autowired
   BoardRepository boardRepository;
@@ -95,6 +105,24 @@ public class BoardRepositoryTest {
     expectList.add(saveList.get(2)); // 2
 
     assertThat(boardList).isEqualTo(expectList);
+  }
+
+  @Test
+  public void 게시판_삭제_테스트() {
+    Long [] idxs = {3L, 4L, 5L};
+    boardRepository.deleteAllByIdxIn(Arrays.asList(idxs));
+    int rowCount = -1;
+    Session session = em.unwrap(Session.class);
+    session.doWork(new Work() {
+      @Override
+      public void execute(Connection connection) throws SQLException {
+        Statement stmt = connection.prepareStatement("select count(idx) from board where idx in (3,4,5)");
+        ResultSet rs = ((PreparedStatement) stmt).executeQuery();
+        while(rs.next()) {
+          int rowCount = rs.getInt(0);
+        }
+      }
+    });
   }
   
   @Test
