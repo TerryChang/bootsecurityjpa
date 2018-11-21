@@ -47,11 +47,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.addFilterBefore(customFilterSecurityInterceptor, FilterSecurityInterceptor.class).csrf().disable().anonymous()
-        .authorities("anonymous").and().authorizeRequests().anyRequest().authenticated().and().formLogin()
-        .loginPage("/login.html").loginProcessingUrl("/login_proc.html").failureUrl("/login.html?error=true")
-        .defaultSuccessUrl("/index.html").usernameParameter("loginId").passwordParameter("password").permitAll().and()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).maximumSessions(1)
+    http.addFilterBefore(customFilterSecurityInterceptor, FilterSecurityInterceptor.class)
+        .csrf().disable()
+        .anonymous().authorities("ANONYMOUS")
+        .and()
+        .authorizeRequests().anyRequest().authenticated()
+        .and()
+        .formLogin()
+          .loginPage("/login.html")
+          .loginProcessingUrl("/login_proc.html")
+          .failureUrl("/login.html?error=true")
+          .defaultSuccessUrl("/index.html")
+          .usernameParameter("loginId")
+          .passwordParameter("password")
+          .permitAll()
+        .and()
+        .sessionManagement()
+          .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+          .maximumSessions(1)
         // .expiredUrl("/errorpage/sessionError.html?error=expired")
         /*
          * Maximum Session 에 도달되어 있는 상태에서 이 값을 true로 하면 기존 로그인 되어 있는 사용자들의 로그인 상태는 유지시키고
@@ -69,28 +82,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          * 관리를 할때 기존 접속자의 세션을 자동적으로 invalidate 시키고 신규 접속자의 세션이 생성되도록 기본값인 false로 설정하는 것이
          * 좋다
          */
-        .maxSessionsPreventsLogin(false).and().invalidSessionUrl("/errorpage/sessionError.html?error=invalidate") // 서버가
-                                                                                                                  // 재시작되거나
-                                                                                                                  // 세션이
-                                                                                                                  // 만료되면
-                                                                                                                  // 이
-                                                                                                                  // 메소드에서
-                                                                                                                  // 지장한
-                                                                                                                  // URL로
-                                                                                                                  // 이동한다(중복
-                                                                                                                  // 로그인으로
-                                                                                                                  // 인한
-                                                                                                                  // 세션
-                                                                                                                  // 만료시에도
-                                                                                                                  // 이
-                                                                                                                  // 메소드에서
-                                                                                                                  // 지정한
-                                                                                                                  // URL로
-                                                                                                                  // 이동한다)
-        .and().logout().invalidateHttpSession(true).clearAuthentication(true)
-        // .logoutUrl("/logout.html")
-        .logoutRequestMatcher(new AntPathRequestMatcher("/logout.html")).logoutSuccessUrl("/index.html")
-        .deleteCookies("JSESSIONID").permitAll(); // logoutUrl 메소드, logoutSuccessUrl 메소드를 통해 정의되는 페이지의 접근 권한을 모두에게 허용한다
+          .maxSessionsPreventsLogin(false)
+          .and()
+          // 서버가 재시작되거나 세션이 만료되면 이 메소드에서 지장한 URL로 이동한다(중복 로그인으로 인한 세션 만료시에도 이 메소드에서 지정한 URL로 이동한다)
+          .invalidSessionUrl("/errorpage/sessionError.html?error=invalidate") 
+        .and()
+        .logout()
+          .invalidateHttpSession(true)
+          .clearAuthentication(true)
+          // .logoutUrl("/logout.html")
+          .logoutRequestMatcher(new AntPathRequestMatcher("/logout.html")).logoutSuccessUrl("/index.html")
+          .deleteCookies("JSESSIONID").permitAll(); // logoutUrl 메소드, logoutSuccessUrl 메소드를 통해 정의되는 페이지의 접근 권한을 모두에게 허용한다
   }
 
   @Override

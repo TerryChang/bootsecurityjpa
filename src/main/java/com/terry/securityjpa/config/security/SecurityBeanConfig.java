@@ -19,6 +19,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,8 +91,11 @@ public class SecurityBeanConfig {
     // CustomAuthorityVoter(cacheService);
     CustomAuthorityVoter customAuthorityVoter = new CustomAuthorityVoter();
     AuthenticatedVoter authenticatedVoter = new AuthenticatedVoter();
-    List<AccessDecisionVoter<? extends Object>> accessDecisionVoterList = Arrays.asList(customRoleVoter,
-        roleHierarchyVoter, customAuthorityVoter, authenticatedVoter);
+    
+    // voter를 등록할때 AuthenticatedVoter가 먼저 등록되도록 설정해야 한다. 
+    // 왜냐면 그걸 제외한 나머지는 로그인이 되어야만 voter 역할을 제대로 할 수 있기 때문이다. 
+    List<AccessDecisionVoter<? extends Object>> accessDecisionVoterList = Arrays.asList(authenticatedVoter, 
+        customAuthorityVoter, customRoleVoter, roleHierarchyVoter );
     AffirmativeBased accessDecisionManager = new AffirmativeBased(accessDecisionVoterList);
     // 접근 승인이나 거부에 대한 판단을 할 수 없는 경우 접근 허용 여부를 설정하는 것이 allowIfAllAbstainDecisions
     // 속성인데 이것을 true로 하면 접근을 허용하는 것이고 그렇지 않은 경우 접근을 허용하지 않는 것을 의미한다
@@ -128,15 +132,18 @@ public class SecurityBeanConfig {
   public RoleHierarchy roleHierarchy(RoleRepository roleRepository) {
     RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
     List<Role> roleList = roleRepository.getRoleWithchildRoleSet();
+    StringBuffer fullRoleStringBuffer = new StringBuffer();
     for (Role role : roleList) {
       String roleName = role.getRoleName();
       Set<Role> childRoleSet = role.getChildRoleSet();
       for (Role childRole : childRoleSet) {
         String childRoleName = childRole.getRoleName();
         logger.debug(roleName + " > " + childRoleName);
-        roleHierarchyImpl.setHierarchy(roleName + " > " + childRoleName);
+        fullRoleStringBuffer.append(roleName + " > " + childRoleName + " ");
       }
     }
+    logger.debug(StringUtils.trimTrailingWhitespace(fullRoleStringBuffer.toString()) + "|||");
+    roleHierarchyImpl.setHierarchy(StringUtils.trimTrailingWhitespace(fullRoleStringBuffer.toString()));
     return roleHierarchyImpl;
   }
 }

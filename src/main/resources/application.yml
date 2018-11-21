@@ -10,6 +10,24 @@ spring:
       # interface가 아닌 class로 AOP 작업을 해야 할때 이 속성을 true로 한다
       # @Transactional이 적용되어 있는 interface를 구현한 클래스가 @Autowired로 Injection 받을때도 적용된다
       proxy-target-class: true
+
+#spring.data.web 프로퍼티는 Spring Boot 2.X에서 지원되는 것이지만 여기서도 같은 의미로 적용하고 사용할려고 정의했다
+#spring.data.web.pageable.default-page-size=20 # Default page size.
+#spring.data.web.pageable.max-page-size=2000 # Maximum page size to be accepted.
+#spring.data.web.pageable.one-indexed-parameters=false # Whether to expose and assume 1-based page number indexes.
+#spring.data.web.pageable.page-parameter=page # Page index parameter name.
+#spring.data.web.pageable.prefix= # General prefix to be prepended to the page number and page size parameters.
+#spring.data.web.pageable.qualifier-delimiter=_ # Delimiter to be used between the qualifier and the actual page number and size properties.
+#spring.data.web.pageable.size-parameter=size # Page size parameter name.
+#spring.data.web.sort.sort-parameter=sort # Sort parameter name.
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        one-indexed-parameters: true
+        page-parameter: pageNo
+        size-parameter: pageSize
   jpa:
     hibernate:
       ddl-auto: validate

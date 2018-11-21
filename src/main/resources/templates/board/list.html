@@ -20,7 +20,34 @@
 </head>
 <body>
 <div class="container">
-    <h1><span>회원등급 게시판</span></h1>
+    <h1><span>게시판</span></h1>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="col-md-1"><input type="checkbox" id="allchk" value="Y"></th>
+          <th class="col-md-1">번호</th>
+          <th class="col-md-6">제목</th>
+          <th class="col-md-2">작성자</th>
+          <th class="col-md-2">등록일자</th>
+        </tr>
+      </thead>
+      <tr th:if="${result.totalElements == 0}">
+        <td class="text-center" colspan="5" th:text="#{board.noresults}">검색된 결과가 없습니다12345</td>
+      </tr>
+      <tr th:if="${result.totalElements > 0}" th:each="board,iter : ${result.content}">
+        <td class="text-center"><input type="checkbox" name="delchk" value="Y"></td>
+        <td class="text-center" th:text="${result.totalElements - (result.number * result.size) - iter.index}">20</td>
+        <td>
+          <a th:queryStringLink="@{/board/view.html(idx=${board.idx})}" href="view.html" th:text="${board.title}">게시물 제목</a>
+        </td>
+        <td th:text="${board.loginId}" class="text-center">작성자아이디</td>
+        <td th:text="${#temporals.format(board.createDT, 'yyyy-MM-dd')}" class="text-center">2018-03-10</td>
+      </tr>
+    </table>
+    <a id="btnwrite" href="/board/insert.html" class="btn btn-default pull-right">글쓰기</a>
+    <div th:if="${result.totalPages > 0}" class="text-center">
+      <th:block th:include="/include/pagination :: pagination(${result.number} + 1, ${result.size}, ${result.totalPages}, 10, '/board/list.html')"></th:block>
+    </div>
 </div>
 </body>
 </html>

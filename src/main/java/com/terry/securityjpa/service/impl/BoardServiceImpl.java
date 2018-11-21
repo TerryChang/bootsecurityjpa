@@ -35,6 +35,8 @@ public class BoardServiceImpl implements BoardService {
       }else if("contents".equals(searchDTO.getSearchType())) {
         result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc(boardType, searchDTO.getSearchWord(), searchDTO);
       }
+    }else {
+      result = boardRepository.findAll(searchDTO);
     }
     return result;
   }

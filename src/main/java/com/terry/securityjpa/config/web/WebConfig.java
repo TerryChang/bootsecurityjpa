@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -24,8 +23,10 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import com.terry.securityjpa.config.converter.http.FileHttpMessageConverter;
+import com.terry.securityjpa.config.properties.SpringDataWebProperties;
 import com.terry.securityjpa.config.thymeleaf.ExtraLinkDialect;
 import com.terry.securityjpa.config.web.support.CustomPageableHandlerMethodArgumentResolver;
+import com.terry.securityjpa.config.web.support.RequestMappingHandlerAdapterCustomizer;
 
 /**
  * @EnableSpringDataWebSupport 를 사용할 경우 3개의 HandlerMethodArgumentResolver가 등록된다
@@ -41,6 +42,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
   @Autowired
   Set<Converter<?, ?>> converters;
+  
+  @Autowired
+  SpringDataWebProperties springDataWebProperties;
 
   @Value("${app.summernote.images}")
   private String appSummernoteImages;
@@ -78,9 +82,19 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
     // TODO Auto-generated method stub
-    PageableHandlerMethodArgumentResolver pageableHandlerArgumentResolver = new CustomPageableHandlerMethodArgumentResolver();
-    pageableHandlerArgumentResolver.setOneIndexedParameters(true);
-    argumentResolvers.add(pageableHandlerArgumentResolver);
+    /* 페이징 관련 객체를 SearchDTO로 전달해주는 CustomPageableHandlerMethodArgumentResolver를 등록한다
+    1페이지를 1부터 시작하게끔 oneIndexedParameters 속성값을 true로 주고 있다
+    1페이지를 0부터 시작하게끔 할려면 이 속성값을 false로 줌과 동시에
+    RequestMappingHandlerAdapterCustomizer 클래스의 postProcessAfterInitialization 메소드에서
+    PageableHandlerMethodArgumentResolver 객체에 대한 작업을 하는 부분에도 oneIndexedParameters 속성값을 같은 값으로 변경해주어야 한다 */
+    CustomPageableHandlerMethodArgumentResolver customPageableHandlerArgumentResolver = new CustomPageableHandlerMethodArgumentResolver();
+    customPageableHandlerArgumentResolver.setMaxPageSize(springDataWebProperties.getPageable().getMaxPageSize());
+    customPageableHandlerArgumentResolver.setOneIndexedParameters(springDataWebProperties.getPageable().isOneIndexedParameters());
+    customPageableHandlerArgumentResolver.setPageParameterName(springDataWebProperties.getPageable().getPageParameter());
+    customPageableHandlerArgumentResolver.setPrefix(springDataWebProperties.getPageable().getPrefix());
+    customPageableHandlerArgumentResolver.setQualifierDelimiter(springDataWebProperties.getPageable().getQualifierDelimiter());
+    customPageableHandlerArgumentResolver.setSizeParameterName(springDataWebProperties.getPageable().getSizeParameter());
+    argumentResolvers.add(customPageableHandlerArgumentResolver);
     super.addArgumentResolvers(argumentResolvers);    
   }
 
@@ -100,10 +114,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   }
   
   @Bean
-  public PageableHandlerMethodArgumentResolver pageableHandlerArgumentResolver() {
-    PageableHandlerMethodArgumentResolver pageableHandlerArgumentResolver = new CustomPageableHandlerMethodArgumentResolver();
-    pageableHandlerArgumentResolver.setOneIndexedParameters(true);
-    return pageableHandlerArgumentResolver;
+  public RequestMappingHandlerAdapterCustomizer requestMappingHandlerAdapterCustomizer(SpringDataWebProperties springDataWebProperties) {
+    return new RequestMappingHandlerAdapterCustomizer(springDataWebProperties);
   }
   
 }

@@ -1,17 +1,19 @@
 package com.terry.securityjpa.config.security;
 
-import com.terry.securityjpa.config.cache.CacheService;
-import com.terry.securityjpa.dto.MemberDTO;
-import com.terry.securityjpa.entity.Role;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import com.terry.securityjpa.config.cache.CacheService;
+import com.terry.securityjpa.dto.MemberDTO;
+import com.terry.securityjpa.entity.Role;
 
 public class CustomRoleVoter extends RoleVoter {
 
@@ -36,11 +38,12 @@ public class CustomRoleVoter extends RoleVoter {
 
   @Override
   public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-    if (authentication == null) {
+    if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
       return ACCESS_DENIED;
     }
+    
     int result = ACCESS_ABSTAIN;
-
+    
     MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal(); // 로그인 계정정보
     Set<String> roleSet = memberDTO.getRoleSet(); // 계정정보 안에 저장되어 있는 Role 정보
     Map<Role, List<GrantedAuthority>> roleAuthorities = cacheService.getRoleAuthorities(); // cache에 저장되어 있는 Role 별 권한

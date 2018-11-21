@@ -4,6 +4,7 @@ import com.terry.securityjpa.config.cache.CacheService;
 import com.terry.securityjpa.dto.MemberDTO;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -39,9 +40,10 @@ public class CustomAuthorityVoter implements AccessDecisionVoter<Object> {
 
   @Override
   public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-    if (authentication == null) {
+    if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
       return ACCESS_DENIED;
     }
+    
     int result = ACCESS_ABSTAIN;
 
     MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal(); // 로그인 계정정보

@@ -7,7 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
+@Slf4j
 public class MainController {
 
   @Autowired
@@ -15,6 +18,7 @@ public class MainController {
 
   @GetMapping(value = { "/", "/index" })
   public String index(Model model) {
+    logger.info("access index.html");
     model.addAttribute("test", "");
     return "/index";
   }

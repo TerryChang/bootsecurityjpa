@@ -19,6 +19,12 @@ import com.terry.securityjpa.dto.SearchDTO;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * PageableHandlerMethodArgumentResolver 클래스가 Controller의 메소드에서 파라미터로 paging관련 값을 PageRequest 객체로 전달해주는 것과는 다르게
+ * 이 클래스는 검색과 관련된 파라미터 값 및 paging 관련 값들이 같이 들어있는 SearchDTO 클래스 객체로 전달해준다
+ * @author Terry Chang
+ *
+ */
 @Getter
 @Setter
 public class CustomPageableHandlerMethodArgumentResolver extends PageableHandlerMethodArgumentResolver {
@@ -40,8 +46,6 @@ public class CustomPageableHandlerMethodArgumentResolver extends PageableHandler
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     // TODO Auto-generated method stub
-    Pageable.class.equals(parameter.getParameterType());
-    
     return SearchDTO.class.equals(parameter.getParameterType());
   }
 
@@ -79,14 +83,6 @@ public class CustomPageableHandlerMethodArgumentResolver extends PageableHandler
   private Pageable getDefaultPageRequestFrom(MethodParameter parameter) {
 
     PageableDefault defaults = parameter.getParameterAnnotation(PageableDefault.class);
-
-    /*
-    Object propertyDefaultValue = AnnotationUtils.getDefaultValue(annotation, property);
-    Object propertyValue = AnnotationUtils.getValue(annotation, property);
-
-    return (T) (ObjectUtils.nullSafeEquals(propertyDefaultValue, propertyValue) ? AnnotationUtils.getValue(annotation)
-        : propertyValue);
-     */
     Integer defaultPageNumber = defaults.page();
     
     /*

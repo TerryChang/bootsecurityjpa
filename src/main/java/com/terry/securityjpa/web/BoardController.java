@@ -2,6 +2,8 @@ package com.terry.securityjpa.web;
 
 import java.security.Principal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +11,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.terry.securityjpa.dto.MemberDTO;
+import com.terry.securityjpa.dto.SearchDTO;
+import com.terry.securityjpa.entity.Board;
 import com.terry.securityjpa.entity.Member;
+import com.terry.securityjpa.service.BoardService;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@AllArgsConstructor
+@Slf4j
 public class BoardController {
 
   /*
@@ -23,43 +33,54 @@ public class BoardController {
    * }
    */
 
-  @GetMapping(value = "/board/{member_type}/list")
-  public String list(@PathVariable(value = "member_type") String member_type, Model model) {
-    model.addAttribute("type", member_type);
+  private BoardService boardService;
+  
+  /**
+   * @PageDefault 어노테이션 사용시엔 PageableHandlerMethodArgumentResolver 클래스의 oneIndexedParameter 속성값 설정과는 상관없이 1페이지를 볼려면 page 속성을 0으로 주어야 한다
+   * 
+   * @param boardType
+   * @param model
+   * @param searchDTO
+   * @return
+   */
+  @GetMapping(value = "/board/{boardType}/list")
+  public String list(@PathVariable(value = "boardType") String boardType, Model model, @PageableDefault(page=0, size=10) SearchDTO searchDTO) {
+    Page<Board> result = boardService.list(boardType, searchDTO);
+    model.addAttribute("result", result);
     return "board/list";
   }
 
-  @GetMapping(value = "/board/{member_type}/view")
-  public String view(@PathVariable(value = "member_type") String member_type, Model model) {
-    model.addAttribute("type", member_type);
+  @GetMapping(value = "/board/{boardType}/view")
+  public String view(@PathVariable(value = "boardType") String boardType, Model model) {
+    model.addAttribute("type", boardType);
     return "board/view";
   }
 
-  @GetMapping(value = "/board/{member_type}/write")
-  public String write(@PathVariable(value = "member_type") String member_type, Principal principal, Model model) {
+  @GetMapping(value = "/board/{boardType}/write")
+  public String write(@PathVariable(value = "boardType") String boardType, Principal principal, Model model) {
     Member loginMember = ((MemberDTO) principal).getMember();
-    model.addAttribute("type", member_type);
+    model.addAttribute("type", boardType);
     return "board/write";
   }
 
   @PostMapping(value = "/board/{member_type}/write")
-  public String writePost(@PathVariable(value = "member_type") String member_type, Principal principal, Model model) {
+  public String writePost(@PathVariable(value = "boardType") String boardType, Principal principal, Model model) {
     Member loginMember = ((MemberDTO) principal).getMember();
-    model.addAttribute("type", member_type);
+    model.addAttribute("type", boardType);
     return "board/write";
   }
 
-  @GetMapping(value = "/board/{member_type}/update")
-  public String update(@PathVariable(value = "member_type") String member_type, Principal principal, Model model) {
+  @GetMapping(value = "/board/{boardType}/update")
+  public String update(@PathVariable(value = "member_type") String boardType, Principal principal, Model model) {
     Member loginMember = ((MemberDTO) principal).getMember();
-    model.addAttribute("type", member_type);
+    model.addAttribute("type", boardType);
     return "board/update";
   }
 
-  @PostMapping(value = "/board/{member_type}/update")
-  public String updatePost(@PathVariable(value = "member_type") String member_type, Principal principal, Model model) {
+  @PostMapping(value = "/board/{boardType}/update")
+  public String updatePost(@PathVariable(value = "boardType") String boardType, Principal principal, Model model) {
     Member loginMember = ((MemberDTO) principal).getMember();
-    model.addAttribute("type", member_type);
+    model.addAttribute("type", boardType);
     return "board/update";
   }
 }
