@@ -5,6 +5,8 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.terry.securityjpa.config.security.matcher.CustomAntPathRequestMatcher;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

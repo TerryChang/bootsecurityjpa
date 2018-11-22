@@ -1,6 +1,6 @@
 package com.terry.securityjpa.config.cache;
 
-import com.terry.securityjpa.config.security.CustomAntPathRequestMatcher;
+import com.terry.securityjpa.config.security.matcher.CustomAntPathRequestMatcher;
 import com.terry.securityjpa.entity.Authority;
 import com.terry.securityjpa.entity.Role;
 import com.terry.securityjpa.entity.UrlResources;

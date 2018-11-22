@@ -1,4 +1,4 @@
-package com.terry.securityjpa.config.security;
+package com.terry.securityjpa.config.security.matcher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;

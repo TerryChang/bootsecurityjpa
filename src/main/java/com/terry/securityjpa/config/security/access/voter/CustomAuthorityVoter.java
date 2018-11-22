@@ -1,4 +1,4 @@
-package com.terry.securityjpa.config.security;
+package com.terry.securityjpa.config.security.access.voter;
 
 import com.terry.securityjpa.config.cache.CacheService;
 import com.terry.securityjpa.dto.MemberDTO;

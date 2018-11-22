@@ -1,6 +1,8 @@
 package com.terry.securityjpa.config.security;
 
 import com.terry.securityjpa.config.cache.CacheService;
+import com.terry.securityjpa.config.security.access.voter.CustomAuthorityVoter;
+import com.terry.securityjpa.config.security.access.voter.CustomRoleVoter;
 import com.terry.securityjpa.entity.Role;
 import com.terry.securityjpa.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -84,8 +86,6 @@ public class SecurityBeanConfig {
   @Bean
   public AffirmativeBased accessDecisionManager(CacheService cacheService, RoleHierarchy roleHierarchy) {
     CustomRoleVoter customRoleVoter = new CustomRoleVoter(cacheService);
-    // customRoleVoter.setRolePrefix("ROLE_");
-    customRoleVoter.setRolePrefix("");
     RoleHierarchyVoter roleHierarchyVoter = new RoleHierarchyVoter(roleHierarchy);
     // CustomAuthorityVoter customAuthorityVoter = new
     // CustomAuthorityVoter(cacheService);
