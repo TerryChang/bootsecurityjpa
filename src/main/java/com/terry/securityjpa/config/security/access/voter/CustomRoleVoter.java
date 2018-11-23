@@ -18,11 +18,7 @@ import com.terry.securityjpa.entity.Role;
 
 public class CustomRoleVoter implements AccessDecisionVoter<Object> {
 
-  private CacheService cacheService;
-
-  public CustomRoleVoter() {
-
-  }
+  final CacheService cacheService;
 
   public CustomRoleVoter(CacheService cacheService) {
     this.cacheService = cacheService;
@@ -79,14 +75,14 @@ public class CustomRoleVoter implements AccessDecisionVoter<Object> {
     
     MemberDTO memberDTO = (MemberDTO) authentication.getPrincipal(); // 로그인 계정정보
     Set<String> roleSet = memberDTO.getRoleSet(); // 계정정보 안에 저장되어 있는 Role 정보
-    Map<Role, List<GrantedAuthority>> roleAuthorities = cacheService.getRoleAuthorities(); // cache에 저장되어 있는 Role 별 권한 정보
-    Set<Role> keySet = roleAuthorities.keySet();
+    Map<String, Set<GrantedAuthority>> roleAuthorities = cacheService.getRoleAuthorities(); // cache에 저장되어 있는 Role 별 권한 정보
+    Set<String> keySet = roleAuthorities.keySet();
     
     for (String roleName : roleSet) {       // 계정정보 안에 저장되어 있는 로그인한 사람이 가지고 있는 Role들에 대한 이름
-      for (Role role : keySet) {            // cache에 저장되어 있는 Role별 권한들 모음에서 Role들에 대한 keyset
-        if (roleName.equals(role.getRoleName())) {  // 로그인 한 사람의 Role과 cache에 저장되어 Role을 찾으면(정확하게는 Role의 이름들로 비교)
-          List<GrantedAuthority> grantedAuthorityList = roleAuthorities.get(role);  // cache에 저장되어 있는 Role에 대한 권한들들 가져온다
-          result.addAll(grantedAuthorityList);
+      for (String role : keySet) {            // cache에 저장되어 있는 Role별 권한들 모음에서 Role들에 대한 keyset
+        if (roleName.equals(role)) {  // 로그인 한 사람의 Role과 cache에 저장되어 Role을 찾으면(정확하게는 Role의 이름들로 비교)
+          Set<GrantedAuthority> grantedAuthoritySet = roleAuthorities.get(role);  // cache에 저장되어 있는 Role에 대한 권한들들 가져온다
+          result.addAll(grantedAuthoritySet);
         }
       }
     }

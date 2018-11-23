@@ -1,6 +1,7 @@
 package com.terry.securityjpa.config.security;
 
 import com.terry.securityjpa.config.cache.CacheService;
+import com.terry.securityjpa.config.security.access.hierarchicalroles.CustomRoleHierachyImpl;
 import com.terry.securityjpa.config.security.access.voter.CustomAuthorityVoter;
 import com.terry.securityjpa.config.security.access.voter.CustomRoleVoter;
 import com.terry.securityjpa.entity.Role;
@@ -121,29 +122,13 @@ public class SecurityBeanConfig {
   }
 
   /**
-   * Role에 대한 정보를 DB에서 읽어와서 RoleHierachy를 생성한다 부모 Role 이름 > 자식 Role 이름(ex
-   * AdminRole > UserRole) 형태의 문자열을 만들어 이를 RoleHierachyImpl 클래스의 setHierachy 메소드에
-   * 반복적으로 호출함으로써 RoleHierachy를 구축할 수 있다.
-   * 
-   * @param roleRepository
+   * cache 에 저장되어 있는 RoleHierachy에 따른 권힌들에 대한 내용을 제공하는 CustomRoleHierachyImpl 클래스 bean을 등록한다
+   * @param cacheService cache service
    * @return
    */
   @Bean
-  public RoleHierarchy roleHierarchy(RoleRepository roleRepository) {
-    RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-    List<Role> roleList = roleRepository.getRoleWithchildRoleSet();
-    StringBuffer fullRoleStringBuffer = new StringBuffer();
-    for (Role role : roleList) {
-      String roleName = role.getRoleName();
-      Set<Role> childRoleSet = role.getChildRoleSet();
-      for (Role childRole : childRoleSet) {
-        String childRoleName = childRole.getRoleName();
-        logger.debug(roleName + " > " + childRoleName);
-        fullRoleStringBuffer.append(roleName + " > " + childRoleName + " ");
-      }
-    }
-    logger.debug(StringUtils.trimTrailingWhitespace(fullRoleStringBuffer.toString()) + "|||");
-    roleHierarchyImpl.setHierarchy(StringUtils.trimTrailingWhitespace(fullRoleStringBuffer.toString()));
-    return roleHierarchyImpl;
+  public CustomRoleHierachyImpl roleHierarchy(CacheService cacheService) {
+    CustomRoleHierachyImpl customRoleHierachyImpl = new CustomRoleHierachyImpl(cacheService);
+    return customRoleHierachyImpl;
   }
 }
