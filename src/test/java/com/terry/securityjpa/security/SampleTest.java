@@ -100,4 +100,15 @@ public class SampleTest {
     mockMvc.perform(get("/board/regular/list.html")).andDo(print()).andExpect(status().is(403));
   }
 
+  /**
+   * 관리자 권한을 가진 사용자가 준회원 권한이 접근할 수 있는 URL에 대한 테스트
+   *
+   * @throws Exception
+   */
+  @Test
+  @WithMockCustomUser("admin_id")
+  public void loginHierarchyUrlTest_Admin_Associate() throws Exception {
+    mockMvc.perform(get("/board/associate/list.html")).andDo(print()).andExpect(status().isOk());
+  }
+
 }

@@ -124,6 +124,12 @@ public class CacheService {
 
   }
 
+  /**
+   * 하위단계 Role 이름들이 들어있는 Set 객체와 하위단계 Role 이름을 입력받가
+   * 입력받은 하위단계 Role 이름이 Set 객체에 없으면 Set 객체에 하위 단계 Role 이름을 넣어주는 메소드이다.
+   * @param reachableRoleNames
+   * @param lowerRoleName
+   */
   private void addReachableRoleNames(Set<String> reachableRoleNames,
                                      String lowerRoleName) {
 

@@ -1,11 +1,10 @@
 package com.terry.securityjpa.config.security;
 
 import com.terry.securityjpa.config.cache.CacheService;
-import com.terry.securityjpa.config.security.access.hierarchicalroles.CustomRoleHierachyImpl;
+import com.terry.securityjpa.config.security.access.hierarchicalroles.CustomRoleHierarchy;
 import com.terry.securityjpa.config.security.access.voter.CustomAuthorityVoter;
+import com.terry.securityjpa.config.security.access.voter.CustomRoleHierarchyVoter;
 import com.terry.securityjpa.config.security.access.voter.CustomRoleVoter;
-import com.terry.securityjpa.entity.Role;
-import com.terry.securityjpa.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
@@ -22,11 +20,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @Configuration
 @Slf4j
@@ -85,18 +81,16 @@ public class SecurityBeanConfig {
   }
 
   @Bean
-  public AffirmativeBased accessDecisionManager(CacheService cacheService, RoleHierarchy roleHierarchy) {
+  public AffirmativeBased accessDecisionManager(CacheService cacheService) {
     CustomRoleVoter customRoleVoter = new CustomRoleVoter(cacheService);
-    RoleHierarchyVoter roleHierarchyVoter = new RoleHierarchyVoter(roleHierarchy);
-    // CustomAuthorityVoter customAuthorityVoter = new
-    // CustomAuthorityVoter(cacheService);
+    CustomRoleHierarchyVoter customRoleHierarchyVoter = new CustomRoleHierarchyVoter(cacheService, new CustomRoleHierarchy(cacheService));
     CustomAuthorityVoter customAuthorityVoter = new CustomAuthorityVoter();
     AuthenticatedVoter authenticatedVoter = new AuthenticatedVoter();
     
     // voter를 등록할때 AuthenticatedVoter가 먼저 등록되도록 설정해야 한다. 
     // 왜냐면 그걸 제외한 나머지는 로그인이 되어야만 voter 역할을 제대로 할 수 있기 때문이다. 
     List<AccessDecisionVoter<? extends Object>> accessDecisionVoterList = Arrays.asList(authenticatedVoter, 
-        customAuthorityVoter, customRoleVoter, roleHierarchyVoter );
+        customAuthorityVoter, customRoleVoter, customRoleHierarchyVoter );
     AffirmativeBased accessDecisionManager = new AffirmativeBased(accessDecisionVoterList);
     // 접근 승인이나 거부에 대한 판단을 할 수 없는 경우 접근 허용 여부를 설정하는 것이 allowIfAllAbstainDecisions
     // 속성인데 이것을 true로 하면 접근을 허용하는 것이고 그렇지 않은 경우 접근을 허용하지 않는 것을 의미한다
@@ -121,14 +115,5 @@ public class SecurityBeanConfig {
     return customFilterSecurityInterceptor;
   }
 
-  /**
-   * cache 에 저장되어 있는 RoleHierachy에 따른 권힌들에 대한 내용을 제공하는 CustomRoleHierachyImpl 클래스 bean을 등록한다
-   * @param cacheService cache service
-   * @return
-   */
-  @Bean
-  public CustomRoleHierachyImpl roleHierarchy(CacheService cacheService) {
-    CustomRoleHierachyImpl customRoleHierachyImpl = new CustomRoleHierachyImpl(cacheService);
-    return customRoleHierachyImpl;
-  }
+
 }
