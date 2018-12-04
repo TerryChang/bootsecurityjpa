@@ -11,14 +11,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import java.util.Arrays;
@@ -82,14 +81,16 @@ public class SecurityBeanConfig {
 
   @Bean
   public AffirmativeBased accessDecisionManager(CacheService cacheService) {
+    CustomRoleHierarchy customRoleHierarchy = new CustomRoleHierarchy(cacheService);
     CustomRoleVoter customRoleVoter = new CustomRoleVoter(cacheService);
-    CustomRoleHierarchyVoter customRoleHierarchyVoter = new CustomRoleHierarchyVoter(cacheService, new CustomRoleHierarchy(cacheService));
-    CustomAuthorityVoter customAuthorityVoter = new CustomAuthorityVoter();
+    CustomRoleHierarchyVoter customRoleHierarchyVoter = new CustomRoleHierarchyVoter(cacheService, customRoleHierarchy);
+    CustomAuthorityVoter customAuthorityVoter = new CustomAuthorityVoter(customRoleHierarchy);
     AuthenticatedVoter authenticatedVoter = new AuthenticatedVoter();
+    WebExpressionVoter webExpressionVoter = new WebExpressionVoter();
     
     // voter를 등록할때 AuthenticatedVoter가 먼저 등록되도록 설정해야 한다. 
     // 왜냐면 그걸 제외한 나머지는 로그인이 되어야만 voter 역할을 제대로 할 수 있기 때문이다. 
-    List<AccessDecisionVoter<? extends Object>> accessDecisionVoterList = Arrays.asList(authenticatedVoter, 
+    List<AccessDecisionVoter<? extends Object>> accessDecisionVoterList = Arrays.asList(authenticatedVoter, webExpressionVoter,
         customAuthorityVoter, customRoleVoter, customRoleHierarchyVoter );
     AffirmativeBased accessDecisionManager = new AffirmativeBased(accessDecisionVoterList);
     // 접근 승인이나 거부에 대한 판단을 할 수 없는 경우 접근 허용 여부를 설정하는 것이 allowIfAllAbstainDecisions
@@ -115,5 +116,8 @@ public class SecurityBeanConfig {
     return customFilterSecurityInterceptor;
   }
 
-
+  @Bean
+  public CustomRoleHierarchy customRoleHierarchy(CacheService cacheService) {
+    return new CustomRoleHierarchy(cacheService);
+  }
 }

@@ -1,12 +1,15 @@
 package com.terry.securityjpa.config.security;
 
+import com.terry.securityjpa.config.security.access.expression.CustomWebSecurityExpressionRoot;
+import com.terry.securityjpa.config.security.access.hierarchicalroles.CustomRoleHierarchy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.expression.SecurityExpressionOperations;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,14 +17,16 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@Import({ SecurityBeanConfig.class })
 @EnableWebSecurity
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+// @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private String[] ignoredMatcherPattern = { "/static/**", "/css/**", "/webjars/**", "/summernote/**",
       "/**/favicon.ico" };
@@ -32,9 +37,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
   private CustomFilterSecurityInterceptor customFilterSecurityInterceptor;
 
+  @Autowired
+  private CustomRoleHierarchy customRoleHierarchy;
+
   @Override
   public void configure(WebSecurity web) throws Exception {
-    web.ignoring().antMatchers(ignoredMatcherPattern).and().debug(true);
+    web.ignoring().antMatchers(ignoredMatcherPattern)
+        .and()
+        .expressionHandler(new DefaultWebSecurityExpressionHandler() {
+          @Override
+          protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {
+            CustomWebSecurityExpressionRoot customWebSecurityExpressionRoot = new CustomWebSecurityExpressionRoot(authentication, fi, customRoleHierarchy);
+            customWebSecurityExpressionRoot.setPermissionEvaluator(super.getPermissionEvaluator());
+            customWebSecurityExpressionRoot.setTrustResolver(new AuthenticationTrustResolverImpl());
+            customWebSecurityExpressionRoot.setDefaultRolePrefix("");
+            return customWebSecurityExpressionRoot;
+          }
+        })
+        .debug(true);
   }
 
   /**

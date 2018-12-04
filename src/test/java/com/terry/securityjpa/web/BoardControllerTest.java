@@ -52,4 +52,20 @@ public class BoardControllerTest {
       .andDo(print())
       .andExpect(status().isOk());
   }
+
+  @Test
+  @WithMockCustomUser("regular_id")
+  public void PreAuthorize_customHasRole_정회원_테스트() throws Exception {
+    mockMvc.perform(get("/test/board/list.html"))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockCustomUser("associate_id")
+  public void PreAuthorize_customHasRole_준회원_테스트() throws Exception {
+    mockMvc.perform(get("/test/board/list.html"))
+        .andDo(print())
+        .andExpect(status().is(403));
+  }
 }

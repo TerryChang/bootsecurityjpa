@@ -21,6 +21,9 @@
 <body>
 <div class="container">
     <h1><span>게시판</span></h1>
+    <div sec:authorize="customHasRole('ASSOCIATE_MEMBER')">준회원 hasRoleTest</div>
+    <div sec:authorize="customHasRole('REGULAR_MEMBER')">정회원 hasRoleTest</div>
+    <div sec:authorize="customHasRole('ADMIN')">관리자 hasRoleTest</div>
     <table class="table table-hover">
       <thead>
         <tr>
