@@ -20,10 +20,33 @@
 </head>
 <body>
 <div class="container">
-    <h1><span>게시판</span></h1>
+    <th:block th:switch="${boardType}">
+        <h1 th:case="'associate'">준회원 게시판</h1>
+        <h1 th:case="'regular'">정회원 게시판</h1>
+        <h1 th:case="'admin'">관리자 게시판</h1>
+    </th:block>
+
+    <!--
     <div sec:authorize="customHasRole('ASSOCIATE_MEMBER')">준회원 hasRoleTest</div>
     <div sec:authorize="customHasRole('REGULAR_MEMBER')">정회원 hasRoleTest</div>
     <div sec:authorize="customHasRole('ADMIN')">관리자 hasRoleTest</div>
+    -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <ul class="nav navbar-nav">
+                <li><a href="#">Home</a></li>
+                <li><a href="/board/associate/list.html">준회원 게시판</a></li>
+                <li><a href="/board/regular/list.html">정회원 게시판</a></li>
+                <li><a href="/board/admin/list.html">관리자 게시판</a></li>
+                <li sec:authorize="isAnonymous()"><a th:href="@{/login.html}">로그인</a></li>
+                <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li><!-- 로그인 아이디 정보를 가져올때 -->
+                <!-- <li sec:authorize="isAuthenticated()"><a href="#" th:text="${#authentication.principal.getMember().getName()}">로그인 아이디</a></li> --><!-- 로그인한 사용자 이름등 spring security에서 취급하지 않는 정보를 가져올때 -->
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/logout.html}">로그아웃</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <table class="table table-hover">
       <thead>
         <tr>
@@ -47,7 +70,7 @@
         <td th:text="${#temporals.format(board.createDT, 'yyyy-MM-dd')}" class="text-center">2018-03-10</td>
       </tr>
     </table>
-    <a id="btnwrite" href="/board/insert.html" class="btn btn-default pull-right">글쓰기</a>
+    <a id="btnwrite" th:href="@{'/board/' + ${boardType} + '/write.html'}" class="btn btn-default pull-right">글쓰기</a>
     <div th:if="${result.totalPages > 0}" class="text-center">
       <th:block th:include="/include/pagination :: pagination(${result.number} + 1, ${result.size}, ${result.totalPages}, 10, '/board/list.html')"></th:block>
     </div>

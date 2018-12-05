@@ -26,10 +26,7 @@ import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListen
 import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -77,6 +74,11 @@ public class Board implements CreateUpdateDTAuditable {
   @ToString.Exclude
   private Set<BoardFile> boardFileSet = new HashSet<>();
 
+/*
+@Builder 어노테이션을 사용하면 객체를 생성할때 다음가 같이 해야 한다
+Board.builder().member(member).title(title).contents(contents).boardType(boardType).build();
+ */
+  @Builder
   public Board(Member member, String title, String contents, String boardType) {
     this.member = member;
     this.title = title;

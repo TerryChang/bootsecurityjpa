@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.terry.securityjpa.config.web.support.LoginMemberHandlerMethodArgumentResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -95,6 +96,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     customPageableHandlerArgumentResolver.setQualifierDelimiter(springDataWebProperties.getPageable().getQualifierDelimiter());
     customPageableHandlerArgumentResolver.setSizeParameterName(springDataWebProperties.getPageable().getSizeParameter());
     argumentResolvers.add(customPageableHandlerArgumentResolver);
+
+    // Controller에서 로그인 한 사용자의 정보를 보관하고 있는 MemberDTO 객체를 파라미터로 받을수 있게 해주는 LoginMemberHandlerMethodArgumentResolver를 등록한다
+    LoginMemberHandlerMethodArgumentResolver loginMemberHandlerMethodArgumentResolver = new LoginMemberHandlerMethodArgumentResolver();
+    argumentResolvers.add(loginMemberHandlerMethodArgumentResolver);
     super.addArgumentResolvers(argumentResolvers);    
   }
 
