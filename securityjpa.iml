@@ -127,5 +127,7 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:bootstrap:3.3.7-1" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:jquery:1.11.1" level="project" />
+    <orderEntry type="library" name="Maven: org.modelmapper.extensions:modelmapper-spring:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.modelmapper:modelmapper:2.3.0" level="project" />
   </component>
 </module>

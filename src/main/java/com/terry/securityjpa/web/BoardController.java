@@ -10,10 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import com.terry.securityjpa.dto.MemberDTO;
 import com.terry.securityjpa.dto.SearchDTO;
@@ -69,22 +66,22 @@ public class BoardController {
   }
 
   @PostMapping(value = "/board/{member_type}/write")
-  public String writePost(@PathVariable(value = "boardType") String boardType, Principal principal, Model model) {
-    Member loginMember = ((MemberDTO) principal).getMember();
+  public String writePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
+
     model.addAttribute("boardType", boardType);
     return "board/write";
   }
 
   @GetMapping(value = "/board/{boardType}/update")
-  public String update(@PathVariable(value = "member_type") String boardType, Principal principal, Model model) {
-    Member loginMember = ((MemberDTO) principal).getMember();
+  public String update(@PathVariable(value = "member_type") String boardType, @LoginMember MemberDTO loginUser, @RequestParam(value="idx") long idx, Model model) {
+
     model.addAttribute("boardType", boardType);
     return "board/update";
   }
 
   @PostMapping(value = "/board/{boardType}/update")
-  public String updatePost(@PathVariable(value = "boardType") String boardType, Principal principal, Model model) {
-    Member loginMember = ((MemberDTO) principal).getMember();
+  public String updatePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
+
     model.addAttribute("boardType", boardType);
     return "board/update";
   }

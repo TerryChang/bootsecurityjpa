@@ -8,13 +8,20 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.terry.securityjpa.config.WithMockCustomUser;
+import com.terry.securityjpa.dto.BoardDTO;
+import com.terry.securityjpa.dto.MemberDTO;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +54,9 @@ public class BoardServiceTest {
   BoardRepository boardRepository;
   
   List<Board> saveList = new ArrayList<>();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   
   @Before
   public void before() {
@@ -58,7 +68,7 @@ public class BoardServiceTest {
       String newTitle = "준회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "준회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
       Board board = new Board(associateMember, newTitle, newContents, "associate");
-      boardService.write(board);
+      boardRepository.save(board);
       saveList.add(board);
     }
 
@@ -66,7 +76,8 @@ public class BoardServiceTest {
       String newTitle = "정회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "정회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
       Board board = new Board(regularMember, newTitle, newContents, "regular");
-      boardService.write(board);
+      // boardService.write(board);
+      boardRepository.save(board);
       saveList.add(board);
     }
 
@@ -111,33 +122,45 @@ public class BoardServiceTest {
   }
 
   @Test
+  @WithMockCustomUser("associate_id")
   public void 준회원게시판_쓰기_테스트() {
-    Member associateMember = memberRepository.findOne(1L);  // 준회원
-    Board board = new Board(associateMember, "준회원 테스트 제목", "준회원 테스트 내용", "associate");
-    boardService.write(board);
+    MemberDTO memberDTO = (MemberDTO)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    // Board board = new Board(memberDTO.getMember(), "준회원 테스트 제목", "준회원 테스트 내용", "associate");
+    // boardService.write(memberDTO, board);
+    BoardDTO boardDTO = BoardDTO.builder().title("준회원 테스트 제목").contents("준회원 테스트 내용").boardType("associate").build();
+    boardService.write(boardDTO, memberDTO);
     boardRepository.flush();
-    Board selectBoard = boardService.view(board.getIdx()); // flush를 해도 영속성 컨텍스트에서 엔티티가 지워지는 것이 아니기 때문에 findOne을 통해 조회해도 DB를 거치지않는다.
-    assertThat(selectBoard).isEqualTo(board);
+
+    Board selectBoard = boardService.view(31L); // flush를 해도 영속성 컨텍스트에서 엔티티가 지워지는 것이 아니기 때문에 findOne을 통해 조회해도 DB를 거치지않는다.
+    assertThat(selectBoard.getTitle()).isEqualTo(boardDTO.getTitle());
+    assertThat(selectBoard.getContents()).isEqualTo(boardDTO.getContents());
   }
 
+
   @Test
+  @WithMockCustomUser("associate_id")
   public void 준회원게시판_수정_테스트() {
+    MemberDTO memberDTO = (MemberDTO)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    BoardDTO boardDTO = BoardDTO.builder().idx(3L).title("수정된 타이틀").contents("수정된 내용").build();
+    /*
     Board board = boardService.view(3L);
     board.setTitle("수정된 타이틀");
     board.setContents("수정된 내용");
-    boardService.update(board);
+    */
+    boardService.update(boardDTO, memberDTO);
     boardRepository.flush();
     Board selectBoard = boardService.view(3L);
-    assertThat(selectBoard).isEqualTo(board);
+    assertThat(selectBoard.getTitle()).isEqualTo(boardDTO.getTitle());
+    assertThat(selectBoard.getContents()).isEqualTo(boardDTO.getContents());
 
   }
 
   @Test
+  @WithMockCustomUser("associate_id")
   public void 준회원게시판_삭제_테스트() {
-    // Board board = boardService.view(3L);
-    logger.info("준회원게시판_삭제_테스트 시작");
-    boardService.delete(3L);
-    // boardRepository.flush();
+    MemberDTO memberDTO = (MemberDTO)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    boardService.delete(3L, memberDTO);
+    // delete 메소드가 내부적으로는 findOne 메소드를 실행하여 영속성 컨텍스트에 엔티티가 올라가게끔 하고 있기 때문에 엔티티가 영속성 컨텍스트에 존재하는지 확인할 수 있다
     if(entityManager.contains(boardService.view(3L))) {
       logger.info("엔티티 존재함");
     } else {
@@ -148,7 +171,28 @@ public class BoardServiceTest {
     logger.info("준회원게시판_삭제_테스트 종료");
   }
 
+  /**
+   * 로그인한 사용자가 작성한 게시글이 아닌 게시글을 수정할 경우 AccessDeniedException이 발생하는데
+   * 이 예외가 발생하는지에 대한 테스트
+   */
   @Test
+  @WithMockCustomUser("regular_id")
+  public void 로그인_사용자가_작성한_게시글이_아닌_게시글을_수정할_경우의_테스트() {
+    expectedException.expect(AccessDeniedException.class);
+    expectedException.expectMessage("관리자이거나 글의 작성자만이 수정/삭제할 수 있습니다");
+    MemberDTO memberDTO = (MemberDTO)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    BoardDTO boardDTO = BoardDTO.builder().idx(3L).title("수정된 타이틀").contents("수정된 내용").build();
+    /*
+    Board board = boardService.view(3L);
+    board.setTitle("수정된 타이틀");
+    board.setContents("수정된 내용");
+    */
+    boardService.update(boardDTO, memberDTO);
+  }
+
+
+  @Test
+  @WithMockCustomUser("associate_id")
   public void 정회원게시판_제목_Like_검색_페이징() {
 
     SearchDTO searchDTO = new SearchDTO("title", "1", 0, 5);

@@ -206,6 +206,18 @@ public class BoardRepositoryTest {
     assertThat(boardList).isEqualTo(expectList);
   }
 
+  @Test
+  public void BoardRepository의_countByMemberIsAndIdxIn메소드_기능확인테스트() {
+    Member associateMember = memberRepository.findOne(1L);  // associate_id
+    Long [] idxs1 = {3L, 4L, 5L};                              // associate_id가 쓴 글
+    Long [] idxs2 = {1L, 2L, 20L, 21L};                         // associate_id와 regular_id가 쓴 글
+    Long count1 = boardRepository.countByMemberIsAndIdxIn(associateMember, Arrays.asList(idxs1));
+    assertThat(count1).isEqualTo(3);
+    Long count2 = boardRepository.countByMemberIsAndIdxIn(associateMember, Arrays.asList(idxs2));
+    assertThat(count2).isEqualTo(2);                            // associate_id가 쓴 글만 조회하는 것이기 때문에 2가 나와야 한다
+
+  }
+
   @After
   public void after() {
     saveList.clear();
