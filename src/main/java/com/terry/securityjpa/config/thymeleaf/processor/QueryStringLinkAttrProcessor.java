@@ -43,9 +43,9 @@ public class QueryStringLinkAttrProcessor extends AbstractAttributeTagProcessor 
   }
 
   @Override
-  protected void doProcess(ITemplateContext context, IProcessableElementTag tag, AttributeName attributeName // thymeleaf
-                                                                                                             // 속성인
-                                                                                                             // th:queryStringLink
+  protected void doProcess(ITemplateContext context
+      , IProcessableElementTag tag
+      , AttributeName attributeName // thymeleaf 속성인 th:queryStringLink
       , String attributeValue // th:queryStringLink 속성에 설정한 값
       , IElementTagStructureHandler structureHandler) {
 

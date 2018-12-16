@@ -1,3 +1,4 @@
+<!-- 페이징과 관련된 include 대상들이 모인 파일 -->
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
@@ -11,12 +12,12 @@
                    , pageEndNumber=${pageStartNumber}+${pageBlockSize}-1 > ${pageCnt} ? ${pageCnt} : ${pageStartNumber}+${pageBlockSize}-1">
         <ul class="pagination">
             <li th:class="${page == 1} ? 'disabled' : ''">
-                <a th:queryStringLink="@{${url}(page=1)}">
+                <a th:queryStringLink="@{${url}(pageNo=1,pageSize=${pageSize})}">
                     <span class="glyphicon glyphicon-fast-backward"></span>
                 </a>
             </li>
             <li th:class="${page == 1} ? disabled : ''">
-                <a th:queryStringLink="@{${url}(page=${page}-1)}">
+                <a th:queryStringLink="@{${url}(pageNo=${page == 1} ? 1 : ${page}-1,pageSize=${pageSize})}">
                     <span class="glyphicon glyphicon-backward"></span>
                 </a>
             </li>
@@ -26,18 +27,18 @@
                         <span th:text="${i}">1</span>
                     </th:block>
                     <th:block th:unless="${page == i}">
-                        <a th:queryStringLink="@{${url}(page=${i})}" th:text="${i}">1</a>
+                        <a th:queryStringLink="@{${url}(pageNo=${i},pageSize=${pageSize})}" th:text="${i}">1</a>
                     </th:block>
                 </li>
 
             </th:block>
             <li th:class="${page == pageCnt} ? disabled : ''">
-                <a th:queryStringLink="@{${url}(page=${page}+1)}">
+                <a th:queryStringLink="@{${url}(pageNo=${page == pageCnt} ? ${pageCnt} : ${page}+1,pageSize=${pageSize})}">
                     <span class="glyphicon glyphicon-forward"></span>
                 </a>
             </li>
             <li th:class="${page == pageCnt} ? disabled : ''">
-                <a th:queryStringLink="@{${url}(page=${pageCnt})}">
+                <a th:queryStringLink="@{${url}(pageNo=${pageCnt},pageSize=${pageSize})}">
                     <span class="glyphicon glyphicon-fast-forward"></span>
                 </a>
             </li>

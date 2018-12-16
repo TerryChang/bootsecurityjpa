@@ -4,10 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>회원등급 게시판</title>
-    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}" />
-    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
     <style>
         tr.text-center th {
             text-align: center;
@@ -17,84 +13,40 @@
             text-align: center;
         }
     </style>
-    <script type="text/javascript" th:inline="javascript">
-        /* <![CDATA[ */
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <script type="text/javascript">
         $(document).ready(function(){
-            // ajax 작업시 캐쉬를 사용하지 않도록 한다
-            $.ajaxSetup({ cache: false, async : false });
-
-            $("#delbtn").click(function(){
-                if(confirm("게시물을 삭제하시겠습니까?")) {
-                    /*
-                    var data = new FormData();
-                    data.append("idx[]", [[${param.idx[0]}]]);      // 배열로 보낼때 key 이름 옆에 []를 붙인다
-                    */
-                    var idxs = new Array();
-                    idxs.push([[${param.idx[0]}]]);
-
-                    $.ajax({
-                        data : JSON.stringify(idxs),
-                        type : "POST",
-                        url : "/board/delete",              // json으로 return 받을때 확장자로 html을 쓰면 안된다. html을 쓰면 return 을 html 문서로 생각하고 그에 맞춰 return 하기 때문에 json으로 받질 못한다
-                        contentType : "application/json; charset=UTF-8",
-                        dataType : "json",
-                        cache : false,
-                        processData : false,     // data 항목에서 지정한 객체를 쿼리 문자열로 변환할지의 여부(기본은 true이며, 이것이 true일 경우 urlencode 방식으로 변환되어서 전송된다
-                        async : true,
-                        success : function(data, status, xhr) {
-                            var result = data.result;
-                            if(result == "OK") {
-                                alert("글이 삭제되었습니다");
-                                location.href="/board/list.html";
-                            }
-                        },
-                        error : function(error) {
-                            console.log(error);
-                        }
-                    });
-                }
-            });
 
         });
-        /* ]]> */
     </script>
 </head>
 <body>
 <div class="container">
-    <h1><span>회원등급 게시판</span></h1>
-    <form>
-        <table class="table">
-            <tr>
-                <td class="text-center col-md-2">제목</td>
-                <td class="col-md-10" th:text="${board.title}">테스트 제목입니다</td>
-            </tr>
-            <tr>
-                <td class="text-center col-md-2">작성자</td>
-                <td class="col-md-10" th:text="${board.loginId}">작성자아이디</td>
-            </tr>
-            <tr>
-                <td class="text-center">내용</td>
-                <td th:utext="${board.contents}">
-                    안녕하세요..테스트 내용입니다..<br/>
-                    부트스트랩 처음인데..어떻게..괜찮을까요?
-                </td>
-            </tr>
-            <tr>
-                <td class="text-center">파일</td>
-                <td>
-                    <span th:if="${#lists.isEmpty(board.boardFileDTOList)}" th:text="#{board.nouploadfiles}">업로드된 파일이 없습니다</span>
-                    <th:block th:unless="${#lists.isEmpty(board.boardFileDTOList)}" th:each="file, iter : ${board.boardFileDTOList}">
-                        <a href="#" th:href="@{/board/downloadFile.html(idx=${file.idx})}" th:text="${file.orgFileName}">abc.jpg</a><br th:unless="${iter.count==iter.size}"/>
-                    </th:block>
-                </td>
-            </tr>
-        </table>
-        <div class="text-center">
-            <a href="update.html" class="btn btn-default" th:queryStringLink="@{/board/update.html(idx=${board.idx})}">수정</a>
-            <a href="list.html" class="btn btn-default" th:queryStringLink="@{/board/list.html(page=1)}">목록</a>
-            <a href="#" id="delbtn" class="btn btn-default" th:if="${#authentication.getPrincipal().getUsername()} == ${board.loginId}">삭제</a>
-        </div>
-    </form>
+    <th:block th:include="/include/common :: boardTitle()" />
+    <th:block th:include="/include/menu :: topmenu()" />
+
+    <table class="table table-bordered" style="table-layout: fixed">
+        <tr>
+            <td class="text-center col-md-2">제목</td>
+            <td class="col-md-10" th:text="${board.title}"></td>
+        </tr>
+        <tr>
+            <td class="text-center">내용</td>
+            <td th:utext="${board.contents}">내용입니다</td>
+        </tr>
+        <tr>
+            <td class="text-center">파일</td>
+            <td>파일 리스트</td>
+        </tr>
+    </table>
+    <div class="text-center">
+        <a id="updbtn" class="btn btn-default">수정</a>
+        <a id="listbtn" class="btn btn-default">목록</a>
+    </div>
+
 </div>
 </body>
 </html>

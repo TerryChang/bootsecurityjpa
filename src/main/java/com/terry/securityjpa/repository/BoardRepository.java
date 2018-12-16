@@ -13,9 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 
-public interface BoardRepository extends JpaRepository<Board, Long> {
-  Page<Board> findByBoardTypeAndTitleContainingOrderByIdxDesc(String boardType, String title, Pageable pageable);
-  Page<Board> findByBoardTypeAndContentsContainingOrderByIdxDesc(String boardType, String contents, Pageable pageable);
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
   Long countByMemberIsAndIdxIn(Member member, Collection<Long> idxs);
   @Modifying
   @Query("delete from Board b where b.idx in :idxs")

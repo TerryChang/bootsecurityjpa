@@ -1,5 +1,6 @@
 package com.terry.securityjpa.config.jpa;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,8 @@ import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.terry.securityjpa.config.converter.attribute.BoardTypeConverter;
+
+import javax.persistence.EntityManager;
 
 @Configuration
 @EnableTransactionManagement
@@ -29,6 +32,11 @@ public class JpaConfig {
   @Bean
   public SortHandlerMethodArgumentResolver sortResolver() {
     return new SortHandlerMethodArgumentResolver();
+  }
+
+  @Bean
+  public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
+    return new JPAQueryFactory(entityManager);
   }
   
 }

@@ -3,6 +3,7 @@ package com.terry.securityjpa.service.impl;
 import com.terry.securityjpa.dto.BoardDTO;
 import com.terry.securityjpa.dto.MemberDTO;
 import com.terry.securityjpa.entity.Member;
+import com.terry.securityjpa.repository.BoardRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataAccessException;
@@ -30,20 +31,10 @@ public class BoardServiceImpl implements BoardService {
   private final ModelMapper modelMapper;
 
   @Override
-  public Page<Board> list(String boardType, SearchDTO searchDTO)
+  public Page<BoardDTO> list(String boardType, SearchDTO searchDTO)
       throws DataAccessException {
     // TODO Auto-generated method stub
-    Page<Board> result = null;
-    if(StringUtils.hasText(searchDTO.getSearchWord())) {
-      if("title".equals(searchDTO.getSearchType())) {
-        result = boardRepository.findByBoardTypeAndTitleContainingOrderByIdxDesc(boardType, searchDTO.getSearchWord(), searchDTO);
-      }else if("contents".equals(searchDTO.getSearchType())) {
-        result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc(boardType, searchDTO.getSearchWord(), searchDTO);
-      }
-    }else {
-      result = boardRepository.findAll(searchDTO);
-    }
-    return result;
+    return boardRepository.getBoardList(boardType, searchDTO);
   }
 
   @Override

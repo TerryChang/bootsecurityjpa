@@ -13,22 +13,7 @@
 <body>
 <div class="container">
     <h1 th:text="'메인화면' + ${test}">메인화면</h1>
-    <nav class="navbar navbar-default">
-  		<div class="container-fluid">
-		    <ul class="nav navbar-nav">
-		    	<li><a href="#">Home</a></li>
-		      	<li><a href="/board/associate/list.html">준회원 게시판</a></li>
-		      	<li><a href="/board/regular/list.html">정회원 게시판</a></li>
-		      	<li><a href="/board/admin/list.html">관리자 게시판</a></li>
-			    <li sec:authorize="isAnonymous()"><a th:href="@{/login.html}">로그인</a></li>
-			    <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li><!-- 로그인 아이디 정보를 가져올때 -->
-			    <!-- <li sec:authorize="isAuthenticated()"><a href="#" th:text="${#authentication.principal.getMember().getName()}">로그인 아이디</a></li> --><!-- 로그인한 사용자 이름등 spring security에서 취급하지 않는 정보를 가져올때 -->
-			    <li sec:authorize="isAuthenticated()">
-			    	<a th:href="@{/logout.html}">로그아웃</a>
-			    </li>
-			</ul>
-		</div>
-	</nav>
+	<th:block th:include="/include/menu :: topmenu()" />
 </div>
 <!-- 
 <li sec:authorize="isAuthenticated()"><span sec:authentication="name">로그인 아이디</span></li>

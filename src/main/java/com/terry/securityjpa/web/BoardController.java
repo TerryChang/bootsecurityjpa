@@ -47,15 +47,18 @@ public class BoardController {
    */
   @GetMapping(value = "/board/{boardType}/list")
   public String list(@PathVariable(value = "boardType") String boardType, Model model, @PageableDefault(page=0, size=10) SearchDTO searchDTO) {
-    Page<Board> result = boardService.list(boardType, searchDTO);
+    Page<BoardDTO> result = boardService.list(boardType, searchDTO);
+    model.addAttribute("searchDTO", searchDTO);
     model.addAttribute("boardType", boardType);
     model.addAttribute("result", result);
     return "board/list";
   }
 
   @GetMapping(value = "/board/{boardType}/view")
-  public String view(@PathVariable(value = "boardType") String boardType, Model model) {
+  public String view(@PathVariable(value = "boardType") String boardType, Model model, @RequestParam(value="idx") Long idx) {
+    Board board = boardService.view(idx);
     model.addAttribute("boardType", boardType);
+    model.addAttribute("board", board);
     return "board/view";
   }
 
@@ -65,11 +68,11 @@ public class BoardController {
     return "board/write";
   }
 
-  @PostMapping(value = "/board/{member_type}/write")
+  @PostMapping(value = "/board/{boardType}/write")
   public String writePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
-
+    boardService.write(boardDTO, loginUser);
     model.addAttribute("boardType", boardType);
-    return "board/write";
+    return "redirect:/board/" + boardType + "/list.html";
   }
 
   @GetMapping(value = "/board/{boardType}/update")

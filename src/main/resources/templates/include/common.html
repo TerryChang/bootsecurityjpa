@@ -1,0 +1,18 @@
+<!-- 일반적인 include 대상들이 모여있는 html 파일 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<th:block th:fragment="boardTitle()">
+    <th:block th:switch="${boardType}">
+        <h1 th:case="'associate'">준회원 게시판</h1>
+        <h1 th:case="'regular'">정회원 게시판</h1>
+        <h1 th:case="'admin'">관리자 게시판</h1>
+    </th:block>
+</th:block>
+</body>
+</html>

@@ -12,7 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 public interface BoardService {
 
-  Page<Board> list(String boardType, SearchDTO searchDTO) throws DataAccessException;
+  Page<BoardDTO> list(String boardType, SearchDTO searchDTO) throws DataAccessException;
   Board view(Long idx) throws DataAccessException;
   void write(BoardDTO boardDTO, MemberDTO memberDTO) throws DataAccessException;
   void update(BoardDTO boardDTO, MemberDTO memberDTO) throws DataAccessException, AccessDeniedException;

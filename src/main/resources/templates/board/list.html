@@ -17,39 +17,53 @@
             text-align: center;
         }
     </style>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#searchBtn").click(function(){
+                if($("#searchWord").val() != "" && $("#searchType").val() == "") {
+                    alert("검색 종류를 선택해주세요");
+                } else {
+                    $("#searchForm").submit();
+                }
+            });
+        });
+    </script>
+
 </head>
 <body>
 <div class="container">
-    <th:block th:switch="${boardType}">
-        <h1 th:case="'associate'">준회원 게시판</h1>
-        <h1 th:case="'regular'">정회원 게시판</h1>
-        <h1 th:case="'admin'">관리자 게시판</h1>
-    </th:block>
+    <th:block th:include="/include/common :: boardTitle()" />
 
     <!--
     <div sec:authorize="customHasRole('ASSOCIATE_MEMBER')">준회원 hasRoleTest</div>
     <div sec:authorize="customHasRole('REGULAR_MEMBER')">정회원 hasRoleTest</div>
     <div sec:authorize="customHasRole('ADMIN')">관리자 hasRoleTest</div>
     -->
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <ul class="nav navbar-nav">
-                <li><a href="#">Home</a></li>
-                <li><a href="/board/associate/list.html">준회원 게시판</a></li>
-                <li><a href="/board/regular/list.html">정회원 게시판</a></li>
-                <li><a href="/board/admin/list.html">관리자 게시판</a></li>
-                <li sec:authorize="isAnonymous()"><a th:href="@{/login.html}">로그인</a></li>
-                <li sec:authorize="isAuthenticated()"><a href="#" sec:authentication="name">로그인 아이디</a></li><!-- 로그인 아이디 정보를 가져올때 -->
-                <!-- <li sec:authorize="isAuthenticated()"><a href="#" th:text="${#authentication.principal.getMember().getName()}">로그인 아이디</a></li> --><!-- 로그인한 사용자 이름등 spring security에서 취급하지 않는 정보를 가져올때 -->
-                <li sec:authorize="isAuthenticated()">
-                    <a th:href="@{/logout.html}">로그아웃</a>
-                </li>
-            </ul>
+    <th:block th:include="/include/menu :: topmenu()" />
+    <form id="searchForm" name="searchForm" method="get" th:object="${searchDTO}">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-md-2">
+                <div class="form-group ">
+                    <select id="searchType" name="searchType" class="form-control" th:field="*{searchType}">
+                        <option value="">선택해주세요</option>
+                        <option value="title">제목</option>
+                        <option value="contents">내용</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-group ">
+                    <input type="text" class="form-control" name="searchWord" th:field="*{searchWord}" placeholder="검색어를 입력해주세요">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="searchBtn" class="btn btn-primary btn-block">검색</button>
+            </div>
         </div>
-    </nav>
+    </form>
     <table class="table table-hover">
       <thead>
-        <tr>
+        <tr class="text-center">
           <th class="col-md-1"><input type="checkbox" id="allchk" value="Y"></th>
           <th class="col-md-1">번호</th>
           <th class="col-md-6">제목</th>
@@ -61,18 +75,18 @@
         <td class="text-center" colspan="5" th:text="#{board.noresults}">검색된 결과가 없습니다12345</td>
       </tr>
       <tr th:if="${result.totalElements > 0}" th:each="board,iter : ${result.content}">
-        <td class="text-center"><input type="checkbox" name="delchk" value="Y"></td>
+        <td class="text-center"><input type="checkbox" name="delchk" th:value="${board.idx}" value="Y"></td>
         <td class="text-center" th:text="${result.totalElements - (result.number * result.size) - iter.index}">20</td>
-        <td>
-          <a th:queryStringLink="@{/board/view.html(idx=${board.idx})}" href="view.html" th:text="${board.title}">게시물 제목</a>
+        <td th:with="url='/board/' + ${boardType} + '/view.html'">
+          <a th:queryStringLink="@{${url}(idx=${board.idx})}" href="view.html" th:text="${board.title}">게시물 제목</a>
         </td>
         <td th:text="${board.loginId}" class="text-center">작성자아이디</td>
-        <td th:text="${#temporals.format(board.createDT, 'yyyy-MM-dd')}" class="text-center">2018-03-10</td>
+        <td class="text-center" th:text="${#temporals.format(board.createDT, 'yyyy-MM-dd')}">2018-03-10</td>
       </tr>
     </table>
     <a id="btnwrite" th:href="@{'/board/' + ${boardType} + '/write.html'}" class="btn btn-default pull-right">글쓰기</a>
-    <div th:if="${result.totalPages > 0}" class="text-center">
-      <th:block th:include="/include/pagination :: pagination(${result.number} + 1, ${result.size}, ${result.totalPages}, 10, '/board/list.html')"></th:block>
+    <div th:if="${result.totalPages > 0}" th:with="url='/board/' + ${boardType} + '/list.html'" class="text-center">
+      <th:block th:include="/include/pagination :: pagination(${result.number} + 1, ${result.size}, ${result.totalPages}, 10, ${url})"></th:block>
     </div>
 </div>
 </body>

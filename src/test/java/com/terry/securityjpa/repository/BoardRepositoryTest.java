@@ -1,17 +1,21 @@
 package com.terry.securityjpa.repository;
 
+import com.terry.securityjpa.dto.BoardDTO;
 import com.terry.securityjpa.dto.SearchDTO;
 import com.terry.securityjpa.entity.Board;
 import com.terry.securityjpa.entity.Member;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,23 +33,28 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@SpringBootTest
+// @DataJpaTest
 // @DataJpaTest로 테스트 할 경우 내가 사용하는 DataSource가 아니라 내가 만든 엔티티들을 기반으로 만든 In Memory Database를 사용하기 때문에 @AutoConfigureTestDatabase를 아래와 같이 주어 내가 사용하는 DataSource를 사용하도록 한다
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+// @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("local")
 @Transactional
+@Slf4j
 public class BoardRepositoryTest {
 
   @PersistenceContext
   private EntityManager em;
 
   @Autowired
-  BoardRepository boardRepository;
+  private BoardRepository boardRepository;
 
   @Autowired
-  MemberRepository memberRepository;
+  private MemberRepository memberRepository;
 
-  List<Board> saveList = new ArrayList<>();
+  @Autowired
+  private ModelMapper modelMapper;
+
+  List<BoardDTO> saveList = new ArrayList<>();
   
   int rowCount = -1;
 
@@ -60,7 +69,7 @@ public class BoardRepositoryTest {
       String newContents = "준회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
       Board board = new Board(associateMember, newTitle, newContents, "associate");
       boardRepository.save(board);
-      saveList.add(board);
+      saveList.add(modelMapper.map(board, BoardDTO.class));
     }
     
     for (int i = 0; i < 13; i++) {
@@ -68,46 +77,67 @@ public class BoardRepositoryTest {
       String newContents = "정회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
       Board board = new Board(regularMember, newTitle, newContents, "regular");
       boardRepository.save(board);
-      saveList.add(board);
+      saveList.add(modelMapper.map(board, BoardDTO.class));
     }
   }
 
   @Test
   public void 준회원게시판_제목_Like_검색_페이징() {
-    Pageable pageable = new PageRequest(1, 5); // 2 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByBoardTypeAndTitleContainingOrderByIdxDesc("associate", "1", pageable);
+    SearchDTO searchDTO = new SearchDTO();
+    searchDTO.setSearchType("title");
+    searchDTO.setSearchWord("1");
+    searchDTO.setPageNo(1);       // 테스트 클래스에서는 PageableArgumentResovler를 거치는 것이 아니기 때문에 1페이지를 볼려면 0으로 설정해야 한다
+    searchDTO.setPageSize(5);
+    Page<BoardDTO> result = boardRepository.getBoardList("associate", searchDTO);
     assertThat(result).isNotNull();
     assertThat(result.getTotalElements()).isEqualTo(8); // 전체 갯수
     assertThat(result.getTotalPages()).isEqualTo(2); // 전체 페이지수
     assertThat(result.getNumberOfElements()).isEqualTo(3); // 현재 보고자하는 페이지의 레코드 갯수
-    List<Board> boardList = result.getContent();
+    List<BoardDTO> boardList = result.getContent();
 
     // 예상 결과물을 만든다
-    List<Board> expectList = new ArrayList<>();
+    List<BoardDTO> expectList = new ArrayList<>();
     expectList.add(saveList.get(11)); // 11
     expectList.add(saveList.get(10)); // 10
     expectList.add(saveList.get(1)); // 1
 
-    assertThat(boardList).isEqualTo(expectList);
+    // assertThat(boardList).isEqualTo(expectList);
+
+    int boardListSize = boardList.size();
+    assertThat(boardListSize).isEqualTo(expectList.size());
+
+    // b.idx, b.title, b.member, b.boardType, b.createUpdateDT
+    compareList(boardList, expectList);
+
   }
+
 
   @Test
   public void 준회원게시판_내용_Like_검색_페이징() {
-    Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc("associate", "2", pageable);
+    SearchDTO searchDTO = new SearchDTO();
+    searchDTO.setSearchType("contents");
+    searchDTO.setSearchWord("2");
+    searchDTO.setPageNo(0);       // 테스트 클래스에서는 PageableArgumentResovler를 거치는 것이 아니기 때문에 1페이지를 볼려면 0으로 설정해야 한다
+    searchDTO.setPageSize(5);
+    Page<BoardDTO> result = boardRepository.getBoardList("associate", searchDTO);
     assertThat(result).isNotNull();
     assertThat(result.getTotalElements()).isEqualTo(2); // 전체 갯수
     assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
     assertThat(result.getNumberOfElements()).isEqualTo(2); // 현재 보고자하는 페이지의 레코드 갯수
-    List<Board> boardList = result.getContent();
+    List<BoardDTO> boardList = result.getContent();
 
     // 예상 결과물을 만든다
-    List<Board> expectList = new ArrayList<>();
+    List<BoardDTO> expectList = new ArrayList<>();
     expectList.add(saveList.get(12)); // 12
     expectList.add(saveList.get(2)); // 2
 
-    assertThat(boardList).isEqualTo(expectList);
+    int boardListSize = boardList.size();
+    assertThat(boardListSize).isEqualTo(expectList.size());
+
+    // b.idx, b.title, b.member, b.boardType, b.createUpdateDT
+    compareList(boardList, expectList);
   }
+
   
   /**
    * 엔티티 삭제 작업은 먼저 영속성 컨텍스트에 엔티티가 올라와 있어야 한다.
@@ -167,50 +197,67 @@ public class BoardRepositoryTest {
       }
     });
   }
-  
+
   @Test
   public void 정회원게시판_제목_Like_검색_페이징() {
-    Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByBoardTypeAndTitleContainingOrderByIdxDesc("regular", "1", pageable);
+    SearchDTO searchDTO = new SearchDTO();
+    searchDTO.setSearchType("title");
+    searchDTO.setSearchWord("1");
+    searchDTO.setPageNo(0);       // 테스트 클래스에서는 PageableArgumentResovler를 거치는 것이 아니기 때문에 1페이지를 볼려면 0으로 설정해야 한다
+    searchDTO.setPageSize(5);
+    Page<BoardDTO> result = boardRepository.getBoardList("regular", searchDTO);
     assertThat(result).isNotNull();
     assertThat(result.getTotalElements()).isEqualTo(4); // 전체 갯수
     assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
     assertThat(result.getNumberOfElements()).isEqualTo(4); // 현재 보고자하는 페이지의 레코드 갯수
-    List<Board> boardList = result.getContent();
+    List<BoardDTO> boardList = result.getContent();
 
     // 예상 결과물을 만든다
-    List<Board> expectList = new ArrayList<>();
+    List<BoardDTO> expectList = new ArrayList<>();
     expectList.add(saveList.get(29)); // 12
     expectList.add(saveList.get(28)); // 11
     expectList.add(saveList.get(27)); // 10
     expectList.add(saveList.get(18)); // 1
 
-    assertThat(boardList).isEqualTo(expectList);
+    int boardListSize = boardList.size();
+    assertThat(boardListSize).isEqualTo(expectList.size());
+
+    // b.idx, b.title, b.member, b.boardType, b.createUpdateDT
+    compareList(boardList, expectList);
   }
 
   @Test
   public void 정회원게시판_내용_Like_검색_페이징() {
-    Pageable pageable = new PageRequest(0, 5); // 1 페이지, 한 페이지당 5개 레코드로 구성
-    Page<Board> result = boardRepository.findByBoardTypeAndContentsContainingOrderByIdxDesc("regular", "2", pageable);
+    SearchDTO searchDTO = new SearchDTO();
+    searchDTO.setSearchType("contents");
+    searchDTO.setSearchWord("2");
+    searchDTO.setPageNo(0);       // 테스트 클래스에서는 PageableArgumentResovler를 거치는 것이 아니기 때문에 1페이지를 볼려면 0으로 설정해야 한다
+    searchDTO.setPageSize(5);
+    Page<BoardDTO> result = boardRepository.getBoardList("regular", searchDTO);
     assertThat(result).isNotNull();
     assertThat(result.getTotalElements()).isEqualTo(2); // 전체 갯수
     assertThat(result.getTotalPages()).isEqualTo(1); // 전체 페이지수
     assertThat(result.getNumberOfElements()).isEqualTo(2); // 현재 보고자하는 페이지의 레코드 갯수
-    List<Board> boardList = result.getContent();
+    List<BoardDTO> boardList = result.getContent();
 
     // 예상 결과물을 만든다
-    List<Board> expectList = new ArrayList<>();
+    List<BoardDTO> expectList = new ArrayList<>();
     expectList.add(saveList.get(29)); // 12
     expectList.add(saveList.get(19)); // 2
 
-    assertThat(boardList).isEqualTo(expectList);
+    int boardListSize = boardList.size();
+    assertThat(boardListSize).isEqualTo(expectList.size());
+
+    compareList(boardList, expectList);
   }
 
   @Test
   public void BoardRepository의_countByMemberIsAndIdxIn메소드_기능확인테스트() {
     Member associateMember = memberRepository.findOne(1L);  // associate_id
-    Long [] idxs1 = {3L, 4L, 5L};                              // associate_id가 쓴 글
-    Long [] idxs2 = {1L, 2L, 20L, 21L};                         // associate_id와 regular_id가 쓴 글
+    Long [] idxs1 = {saveList.get(2).getIdx(), saveList.get(3).getIdx(), saveList.get(4).getIdx()};
+    Long [] idxs2 = {saveList.get(0).getIdx(), saveList.get(1).getIdx(), saveList.get(19).getIdx(), saveList.get(20).getIdx()};
+    // Long [] idxs1 = {3L, 4L, 5L};                              // associate_id가 쓴 글
+    // Long [] idxs2 = {1L, 2L, 20L, 21L};                         // associate_id와 regular_id가 쓴 글
     Long count1 = boardRepository.countByMemberIsAndIdxIn(associateMember, Arrays.asList(idxs1));
     assertThat(count1).isEqualTo(3);
     Long count2 = boardRepository.countByMemberIsAndIdxIn(associateMember, Arrays.asList(idxs2));
@@ -218,8 +265,24 @@ public class BoardRepositoryTest {
 
   }
 
+
   @After
   public void after() {
     saveList.clear();
+  }
+
+  private void compareList(List<BoardDTO> boardList, List<BoardDTO> expectList) {
+    int boardListSize = boardList.size();
+
+    for(int i = 0; i < boardListSize; i++) {
+      BoardDTO boardDTO = boardList.get(i);
+      BoardDTO expect = expectList.get(i);
+      logger.info(i + "번쪠 entity 비교 체크");
+      assertThat(boardDTO.getIdx()).isEqualTo(expect.getIdx());
+      assertThat(boardDTO.getTitle()).isEqualTo(expect.getTitle());
+      assertThat(boardDTO.getLoginId()).isEqualTo(expect.getLoginId());
+      assertThat(boardDTO.getBoardType()).isEqualTo(expect.getBoardType());
+      assertThat(boardDTO.getCreateDT()).isEqualTo(expect.getCreateDT());
+    }
   }
 }
