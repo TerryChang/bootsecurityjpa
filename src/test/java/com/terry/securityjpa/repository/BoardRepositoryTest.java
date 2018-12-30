@@ -67,7 +67,7 @@ public class BoardRepositoryTest {
     for (int i = 0; i < 17; i++) {
       String newTitle = "준회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "준회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
-      Board board = new Board(associateMember, newTitle, newContents, "associate");
+      Board board = Board.builder().member(associateMember).title(newTitle).contents(newContents).boardType("associate").build();
       boardRepository.save(board);
       saveList.add(modelMapper.map(board, BoardDTO.class));
     }
@@ -75,7 +75,7 @@ public class BoardRepositoryTest {
     for (int i = 0; i < 13; i++) {
       String newTitle = "정회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "정회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
-      Board board = new Board(regularMember, newTitle, newContents, "regular");
+      Board board = Board.builder().member(regularMember).title(newTitle).contents(newContents).boardType("regular").build();
       boardRepository.save(board);
       saveList.add(modelMapper.map(board, BoardDTO.class));
     }
@@ -161,7 +161,7 @@ public class BoardRepositoryTest {
     String newTitle = "준회원 타이틀입니다";
     String newContents = "준회원 컨텐츠입니다";
     Member associateMember = memberRepository.findOne(1L);  // 준회원
-    Board board = new Board(associateMember, newTitle, newContents, "associate");
+    Board board = Board.builder().member(associateMember).title(newTitle).contents(newContents).boardType("associate").build();
     boardRepository.save(board);
     boardRepository.flush();
     

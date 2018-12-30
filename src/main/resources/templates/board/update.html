@@ -20,12 +20,8 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
     <script src="../../../static/summernote/summernote.js" th:src="@{/summernote/summernote.js}"></script>
     <script src="../../../static/summernote/lang/summernote-ko-KR.js" th:src="@{/summernote/lang/summernote-ko-KR.js}"></script>
-    <script type="text/javascript" th:inline="javascript">
-        /* <![CDATA[ */
+    <script type="text/javascript">
         $(document).ready(function(){
-            // ajax 작업시 캐쉬를 사용하지 않도록 한다
-            $.ajaxSetup({ cache: false, async : false });
-
             $("#contents").summernote({
                 lang: 'ko-KR',
                 height: 300,
@@ -122,7 +118,7 @@
                             $(linkobj).remove();
 
                             if($("#current_file_list").is(":empty")) {
-                                var msg = /*[[ #{board.nouploadfiles} ]]*/;
+                                var msg = "/*[[ #{board.nouploadfiles} ]]*/";
                                 $("#current_file_list").html("<span>" + msg + "</span>");
                             }
                         }
@@ -133,31 +129,28 @@
                 });
             }
         }
-        /* ]]> */
     </script>
 </head>
 <body>
 <div class="container">
-    <h1><span th:text="회원등급 수정 ${type}">회원등급 게시판</span></h1>
+    <th:block th:include="/include/common :: boardTitle()" />
+    <!--<h1><span th:text="회원등급 등록 ${type}">회원등급 게시판</span></h1> -->
+    <th:block th:include="/include/menu :: topmenu()" />
     <form id="form" action="update.html" method="post" enctype="multipart/form-data" th:object="${board}">
-        <input type="hidden" id="idx" name="idx" th:field="*{idx}" />
         <table class="table table-bordered" style="table-layout: fixed">
             <tr>
                 <td class="text-center col-md-2">제목</td>
                 <td class="col-md-10">
-                    <input type="text" id="title" name="title" class="form-control" placeholder="제목을 작성해주세요" th:field="*{title}" />
+                    <input type="text" id="title" name="title" class="form-control" placeholder="제목을 작성해주세요" th:field="*{title}"/>
                 </td>
-            </tr>
-            <tr>
-                <td class="text-center col-md-2">작성자</td>
-                <td class="col-md-10" th:text="${board.loginId}">작성자아이디</td>
             </tr>
             <tr>
                 <td class="text-center">내용</td>
                 <td>
-                    <textarea id="contents" name="contents" th:text="*{contents}"></textarea>
+                    <textarea id="contents" name="contents" th:field="*{contents}"></textarea>
                 </td>
             </tr>
+            <!--
             <tr>
                 <td class="text-center">기존파일</td>
                 <td id="current_file_list">
@@ -169,8 +162,9 @@
                     </th:block>
                 </td>
             </tr>
+            -->
             <tr>
-                <td class="text-center">신규파일</td>
+                <td class="text-center">파일</td>
                 <td>
                     <input type="file" id="file1" name="file" />
                     <input type="file" id="file2" name="file" />
@@ -181,10 +175,15 @@
             </tr>
         </table>
         <div class="text-center">
-            <a id="regbtn" class="btn btn-default">등록</a>
+            <a id="regbtn" class="btn btn-default">수정</a>
             <a id="resetbtn" class="btn btn-default">재작성</a>
             <a id="listbtn" class="btn btn-default">목록</a>
         </div>
+        <input type="hidden" id="idx" name="idx" value="" th:field="*{idx}" />
+        <input type="hidden" id="searchType" name="searchType" value="" th:value="${searchDTO.searchType}" />
+        <input type="hidden" id="searchWord" name="searchWord" value="" th:value="${searchDTO.searchWord}" />
+        <input type="hidden" id="pageNo" name="pageNo" value="" th:value="${searchDTO.pageNo}" />
+        <input type="hidden" id="pageSize" name="pageSize" value="" th:value="${searchDTO.pageSize}" />
     </form>
 </div>
 </body>

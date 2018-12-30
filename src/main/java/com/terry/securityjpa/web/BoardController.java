@@ -1,28 +1,25 @@
 package com.terry.securityjpa.web;
 
-import java.security.Principal;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.terry.securityjpa.config.web.support.LoginMember;
-import com.terry.securityjpa.dto.BoardDTO;
+import com.terry.securityjpa.dto.*;
+import com.terry.securityjpa.entity.Board;
+import com.terry.securityjpa.service.BoardService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import com.terry.securityjpa.dto.MemberDTO;
-import com.terry.securityjpa.dto.SearchDTO;
-import com.terry.securityjpa.entity.Board;
-import com.terry.securityjpa.entity.Member;
-import com.terry.securityjpa.service.BoardService;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.List;
 
 @Controller
-@AllArgsConstructor
 @Slf4j
 public class BoardController {
 
@@ -36,6 +33,18 @@ public class BoardController {
    */
 
   private BoardService boardService;
+
+  private ObjectMapper objectMapper;
+
+  @Value("${app.summernote.imagesDir}")
+  private String appSummernoteImagesDir;
+
+  @Autowired
+  public BoardController(BoardService boardService, ObjectMapper objectMapper, @Value("${app.summernote.imagesDir}") String appSummernoteImagesDir) {
+    this.boardService = boardService;
+    this.objectMapper = objectMapper;
+    this.appSummernoteImagesDir = appSummernoteImagesDir;
+  }
   
   /**
    * @PageDefault 어노테이션 사용시엔 PageableHandlerMethodArgumentResolver 클래스의 oneIndexedParameter 속성값 설정과는 상관없이 1페이지를 볼려면 page 속성을 0으로 주어야 한다
@@ -63,29 +72,49 @@ public class BoardController {
   }
 
   @GetMapping(value = "/board/{boardType}/write")
-  public String write(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
+  public String write(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, Model model) {
     model.addAttribute("boardType", boardType);
     return "board/write";
   }
 
   @PostMapping(value = "/board/{boardType}/write")
-  public String writePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
+  @ResponseBody
+  public String writePost(@PathVariable(value = "boardType") String boardType
+      , @LoginMember MemberDTO loginUser
+      , BoardDTO boardDTO
+      , @RequestParam(value = "boardFile", required = false) List<BoardFileDTO> boardFileDTOList, Model model) throws Exception {
+    boardDTO.setBoardType(boardType);
+    boardDTO.setBoardFileDTOList(boardFileDTOList);
     boardService.write(boardDTO, loginUser);
-    model.addAttribute("boardType", boardType);
-    return "redirect:/board/" + boardType + "/list.html";
+    Result result = new Result("00", "");
+    String jsonResult = objectMapper.writeValueAsString(result);
+    return jsonResult;
   }
 
   @GetMapping(value = "/board/{boardType}/update")
-  public String update(@PathVariable(value = "member_type") String boardType, @LoginMember MemberDTO loginUser, @RequestParam(value="idx") long idx, Model model) {
-
+  public String update(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @RequestParam(value="idx") long idx, SearchDTO searchDTO, Model model) {
+    Board board = boardService.view(idx);
     model.addAttribute("boardType", boardType);
+    model.addAttribute("board", board);
+    model.addAttribute("searchDTO", searchDTO);
     return "board/update";
   }
 
   @PostMapping(value = "/board/{boardType}/update")
-  public String updatePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, Model model) {
-
+  public String updatePost(@PathVariable(value = "boardType") String boardType, @LoginMember MemberDTO loginUser, @ModelAttribute(name="board") BoardDTO boardDTO, SearchDTO searchDTO, Model model) throws IOException {
+    boardService.update(boardDTO, loginUser);
     model.addAttribute("boardType", boardType);
-    return "board/update";
+    String paramQueryString = "&pageNo=" + searchDTO.getPageNo() + "&pageSize=" + searchDTO.getPageSize() + "&searchType=" + searchDTO.getSearchType() + "&searchWord=" + searchDTO.getSearchWord();
+    return "redirect:/board/" + boardType + "/update.html?idx=" + boardDTO.getIdx() + paramQueryString;
   }
+
+  /*
+  @RequestMapping(value="/board/imageUpload")
+  @ResponseBody
+  public String imageUpload(@RequestParam(value="image") FileDTO fileDTO) throws IOException {
+
+    String imageUrl = FileUtils.makeSummernoteImage(appSummernoteImagesDir, fileDTO);
+    return imageUrl;
+  }
+  */
 }

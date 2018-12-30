@@ -21,14 +21,13 @@ import javax.persistence.Table;
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Slf4j
 @Entity
 @Table(name = "BOARD_FILE")
@@ -40,17 +39,20 @@ public class BoardFile {
   @Column(name = "SAVE_PATH")
   private String savePath;
 
-  @Column(name = "REAL_NAME")
-  private String realName;
+  @Column(name = "ORG_FILE_NAME")
+  private String orgFileName;
 
-  @Column(name = "ORG_NAME")
-  private String orgName;
+  @Column(name = "REAL_FILE_NAME")
+  private String realFileName;
 
-  @Column(name = "EXT")
-  private String ext;
+  @Column(name = "EXTENSION")
+  private String extension;
+
+  @Column(name = "SIZE")
+  private Long size;
 
   @Column(name = "CREATE_DT", nullable = false, updatable = false)
-  private LocalDateTime createDT = LocalDateTime.now();
+  private LocalDateTime createDT;
 
   @Id
   @Column(name = "IDX")
@@ -62,13 +64,14 @@ public class BoardFile {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "BOARD_IDX")
+  @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private Board board;
 
   public void setBoard(Board board) {
     this.board = board;
-    if (board != null && !board.getBoardFileSet().contains(this)) {
-      board.getBoardFileSet().add(this);
+    if (board != null && !board.getBoardFileList().contains(this)) {
+      board.getBoardFileList().add(this);
     }
   }
 }

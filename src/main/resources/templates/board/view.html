@@ -17,10 +17,14 @@
     <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
+    <script type="text/javascript" th:inline="javascript">
+    $(document).ready(function(){
 
-        });
+    });
+
+    function file_download(idx) {
+        alert(idx);
+    }
     </script>
 </head>
 <body>
@@ -28,23 +32,33 @@
     <th:block th:include="/include/common :: boardTitle()" />
     <th:block th:include="/include/menu :: topmenu()" />
 
-    <table class="table table-bordered" style="table-layout: fixed">
+    <table class="table table-bordered" style="table-layout: fixed" th:object="${board}">
         <tr>
             <td class="text-center col-md-2">제목</td>
-            <td class="col-md-10" th:text="${board.title}"></td>
+            <td class="col-md-10" th:text="*{title}"></td>
+        </tr>
+        <tr>
+            <td class="text-center col-md-2">작성자</td>
+            <td class="col-md-10" th:text="*{member.loginId}"></td>
         </tr>
         <tr>
             <td class="text-center">내용</td>
-            <td th:utext="${board.contents}">내용입니다</td>
+            <td th:utext="*{contents}">내용입니다</td>
         </tr>
         <tr>
             <td class="text-center">파일</td>
-            <td>파일 리스트</td>
+            <td>
+                <span th:if="*{boardFileList.isEmpty()}" th:text="'업로드 된 파일이 없습니다'">파일이 없습니다</span>
+                <th:block th:each="boardFile,iter : *{boardFileList}">
+                    <a href="#" th:onclick="'javascript:file_download(' + ${boardFile.idx} + ')'" th:text="${boardFile.orgFileName} + '-' + ${iter.index}">파일명</a>
+                    <br th:if="${iter.count != #lists.size(board.boardFileList)}" />
+                </th:block>
+            </td>
         </tr>
     </table>
     <div class="text-center">
-        <a id="updbtn" class="btn btn-default">수정</a>
-        <a id="listbtn" class="btn btn-default">목록</a>
+        <a id="updbtn" class="btn btn-default" th:queryStringLink="@{'/board/' + ${boardType} + '/update.html'(idx=${board.idx})}">수정</a>
+        <a id="listbtn" class="btn btn-default" th:queryStringLink="@{'/board/' + ${boardType} + '/list.html'}">목록</a>
     </div>
 
 </div>

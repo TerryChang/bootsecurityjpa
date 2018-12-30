@@ -2,6 +2,7 @@ package com.terry.securityjpa.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class BoardServiceTest {
     for (int i = 0; i < 17; i++) {
       String newTitle = "준회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "준회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
-      Board board = new Board(associateMember, newTitle, newContents, "associate");
+      Board board = Board.builder().member(associateMember).title(newTitle).contents(newContents).boardType("associate").build();
       boardRepository.save(board);
       saveList.add(modelMapper.map(board, BoardDTO.class));
     }
@@ -79,7 +80,7 @@ public class BoardServiceTest {
     for (int i = 0; i < 13; i++) {
       String newTitle = "정회원 " + title + i + " 번째 타이틀입니다";
       String newContents = "정회원 " + contents + "\n" + i + "번째 컨텐츠입니다";
-      Board board = new Board(regularMember, newTitle, newContents, "regular");
+      Board board = Board.builder().member(regularMember).title(newTitle).contents(newContents).boardType("regular").build();
       // boardService.write(board);
       boardRepository.save(board);
       saveList.add(modelMapper.map(board, BoardDTO.class));
@@ -130,7 +131,7 @@ public class BoardServiceTest {
 
   @Test
   @WithMockCustomUser("associate_id")
-  public void 준회원게시판_쓰기_테스트() {
+  public void 준회원게시판_쓰기_테스트() throws IOException {
     MemberDTO memberDTO = (MemberDTO)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     // Board board = new Board(memberDTO.getMember(), "준회원 테스트 제목", "준회원 테스트 내용", "associate");
     // boardService.write(memberDTO, board);
@@ -149,7 +150,7 @@ public class BoardServiceTest {
 
   @Test
   @WithMockCustomUser("associate_id")
-  public void 준회원게시판_수정_테스트() {
+  public void 준회원게시판_수정_테스트() throws IOException {
     // 여러개의 테스트를 한번에 다 실행할 경우 before 메소드가 여러번 실행되는 관계로 sequence로 설정되는 idx 값을 특정값으로 설정할 수 있는 방법이 없다
     // 그래서 before 메소드를 실행할때 등록되는 게시물을 saveList 변수에 넣는데 여기서 특정 게시물을 꺼내서 거기에 있는 idx 값을 사용하도록 한다
     Long idx = saveList.get(2).getIdx();
@@ -193,7 +194,7 @@ public class BoardServiceTest {
    */
   @Test
   @WithMockCustomUser("regular_id")
-  public void 로그인_사용자가_작성한_게시글이_아닌_게시글을_수정할_경우의_테스트() {
+  public void 로그인_사용자가_작성한_게시글이_아닌_게시글을_수정할_경우의_테스트() throws IOException{
     expectedException.expect(AccessDeniedException.class);
     expectedException.expectMessage("관리자이거나 글의 작성자만이 수정/삭제할 수 있습니다");
     // 여러개의 테스트를 한번에 다 실행할 경우 before 메소드가 여러번 실행되는 관계로 sequence로 설정되는 idx 값을 특정값으로 설정할 수 있는 방법이 없다

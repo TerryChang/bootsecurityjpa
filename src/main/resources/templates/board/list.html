@@ -84,7 +84,7 @@
         <td class="text-center" th:text="${#temporals.format(board.createDT, 'yyyy-MM-dd')}">2018-03-10</td>
       </tr>
     </table>
-    <a id="btnwrite" th:href="@{'/board/' + ${boardType} + '/write.html'}" class="btn btn-default pull-right">글쓰기</a>
+    <a id="btnwrite" th:queryStringLink="@{'/board/' + ${boardType} + '/write.html'}" class="btn btn-default pull-right">글쓰기</a>
     <div th:if="${result.totalPages > 0}" th:with="url='/board/' + ${boardType} + '/list.html'" class="text-center">
       <th:block th:include="/include/pagination :: pagination(${result.number} + 1, ${result.size}, ${result.totalPages}, 10, ${url})"></th:block>
     </div>

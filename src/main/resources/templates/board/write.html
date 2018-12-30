@@ -17,10 +17,11 @@
     <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap-theme.min.css}" />
     <link href="../../../static/summernote/summernote.css" th:href="@{/summernote/summernote.css}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" th:src="@{/webjars/jquery-form/4.2.1/jquery.form.min.js}"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
     <script src="../../../static/summernote/summernote.js" th:src="@{/summernote/summernote.js}"></script>
     <script src="../../../static/summernote/lang/summernote-ko-KR.js" th:src="@{/summernote/lang/summernote-ko-KR.js}"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" th:inline="javascript">
         $(document).ready(function(){
             $("#contents").summernote({
                 lang: 'ko-KR',
@@ -52,24 +53,29 @@
                 }
             });
 
-            $("#regbtn").click(function(){
-                if($("#title").val() == "") {
-                    alert("제목을 작성해주세요");
-                    $("#title").focus();
-                } else if($("#contents").summernote('isEmpty')) {
-                    alert("내용을 작성해주세요");
-                    $("#contents").summernote('focus');
-                } else {
-                    $("#form").submit();
+            $("#form").ajaxForm({
+                dataType:  "json",
+                url: "/board/" + [[${boardType}]] + "/write.html",
+                beforeSubmit : checkForm,
+                success : function(responseText, statusText, xhr, $form){
+                    /* <![CDATA[ */
+                    // thymeleaf 에서 inline으로 escape 문자까지 처리해서 보여주려 할땐 [[${abc}]] 으로 설정하면 앞뒤로 쌍따옴표를 붙인 문자열이 나온다
+                    // thymeleaf 에서 inline으로 escape 문자를 처리하지 않고자 할땐 [(${abc})]을 사용하면 앞뒤로 쌍따옴표를 붙이지 않은 문자열이 나온다
+                    // 여기서 abc는 모델변수명임
+                    location.href="/board/" + [[${boardType}]] + "/list.html";
+                    /* ]]> */
+                },
+                error : function(xhr, textStatus){
+                    alert("등록에 실패했습니다");
                 }
+            });
+
+            $("#regbtn").click(function(){
+               $("#form").submit();
             });
 
             $("#resetbtn").click(function(){
                 $("#contents").summernote('reset');
-            });
-
-            $("#listbtn").click(function(){
-
             });
         });
 
@@ -93,6 +99,21 @@
                 }
             });
         }
+
+        function checkForm() {
+            var result = true;
+            if($("#title").val() == "") {
+                alert("제목을 작성해주세요");
+                $("#title").focus();
+                result = false;
+            } else if($("#contents").summernote('isEmpty')) {
+                alert("내용을 작성해주세요");
+                $("#contents").summernote('focus');
+                result = false;
+            }
+
+            return result;
+        }
     </script>
 </head>
 <body>
@@ -100,35 +121,35 @@
     <th:block th:include="/include/common :: boardTitle()" />
     <!--<h1><span th:text="회원등급 등록 ${type}">회원등급 게시판</span></h1> -->
     <th:block th:include="/include/menu :: topmenu()" />
-    <form id="form" action="write.html" method="post" enctype="multipart/form-data" th:object="${board}">
+    <form id="form" action="write.html" method="post" enctype="multipart/form-data">
         <table class="table table-bordered" style="table-layout: fixed">
             <tr>
                 <td class="text-center col-md-2">제목</td>
                 <td class="col-md-10">
-                    <input type="text" id="title" name="title" class="form-control" placeholder="제목을 작성해주세요" th:field="*{title}"/>
+                    <input type="text" id="title" name="title" class="form-control" placeholder="제목을 작성해주세요"/>
                 </td>
             </tr>
             <tr>
                 <td class="text-center">내용</td>
                 <td>
-                    <textarea id="contents" name="contents" th:field="*{contents}"></textarea>
+                    <textarea id="contents" name="contents"></textarea>
                 </td>
             </tr>
             <tr>
                 <td class="text-center">파일</td>
                 <td>
-                    <input type="file" id="file1" name="file" />
-                    <input type="file" id="file2" name="file" />
-                    <input type="file" id="file3" name="file" />
-                    <input type="file" id="file4" name="file" />
-                    <input type="file" id="file5" name="file" />
+                    <input type="file" id="file1" name="boardFile" />
+                    <input type="file" id="file2" name="boardFile" />
+                    <input type="file" id="file3" name="boardFile" />
+                    <input type="file" id="file4" name="boardFile" />
+                    <input type="file" id="file5" name="boardFile" />
                 </td>
             </tr>
         </table>
         <div class="text-center">
             <a id="regbtn" class="btn btn-default">등록</a>
             <a id="resetbtn" class="btn btn-default">재작성</a>
-            <a id="listbtn" class="btn btn-default">목록</a>
+            <a id="listbtn" class="btn btn-default" th:queryStringLink="@{'/board/' + ${boardType} + '/list.html'}">목록</a>
         </div>
     </form>
 </div>

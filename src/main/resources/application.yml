@@ -46,8 +46,16 @@ spring:
     mode: HTML5
   http:
     multipart:
+      file-size-threshold: 10MB     # 파일 업로드시 메모리에 쌓이는 크기를 지정한다. 여기서 지정된 크기만큼 쌓이면 Disk에 쓰기 작업을 진행한다
       max-file-size: 100MB          # 파일 업로드시 한 파일의 최대 파일 크기
       max-request-size: 1000MB      # 파일 업로드시 업로드 가능한 전체 파일의 총합 크기(파일을 10개를 올린다고 가정할 경우 10개 파일의 크기를 모두 합한 전체 파일 총합의 크기의 maximum을 설정하는 것이다, -1이면 무제한)
       location: ${java.io.tmpdir}
 app:
   domain: localhost
+  uploadFilePath: /uploadFile
+  #summernote 에디터에서 이미지 업로드할때 이미지가 저장되는 경로
+  #summernote.images : 환경설정시 사용
+  #summernote.imagesDir : 이미지 디렉토리 만들때 사용
+  summernote:
+    images: file:///src/main/webapp/summernote/images/
+    imagesDir: /src/main/webapp/summernote/images

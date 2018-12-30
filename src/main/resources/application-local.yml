@@ -24,7 +24,7 @@ h2:
 
 app:
   domain: localhost
-  upliadFilePath: D:/uploadFile/
+  uploadFilePath: D:/uploadFile/
   #summernote 에디터에서 이미지 업로드할때 이미지가 저장되는 경로
   #summernote.images : 환경설정시 사용
   #summernote.imagesDir : 이미지 디렉토리 만들때 사용

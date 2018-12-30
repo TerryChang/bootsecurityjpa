@@ -1,36 +1,20 @@
 package com.terry.securityjpa.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
 import com.terry.securityjpa.config.converter.attribute.BoardTypeConverter;
 import com.terry.securityjpa.config.jpa.listener.CreateUpdateDTAuditEntityListener;
 import com.terry.securityjpa.entity.audit.CreateUpdateDTAuditable;
 import com.terry.securityjpa.entity.embed.CreateUpdateDT;
-
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Slf4j
 @Entity
 @EntityListeners(value = { CreateUpdateDTAuditEntityListener.class })
@@ -69,25 +53,18 @@ public class Board implements CreateUpdateDTAuditable {
   @ToString.Exclude
   private Member member;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.ALL)
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private Set<BoardFile> boardFileSet = new HashSet<>();
+  private List<BoardFile> boardFileList = new ArrayList<>();
 
 /*
 @Builder 어노테이션을 사용하면 객체를 생성할때 다음가 같이 해야 한다
 Board.builder().member(member).title(title).contents(contents).boardType(boardType).build();
  */
-  @Builder
-  public Board(Member member, String title, String contents, String boardType) {
-    this.member = member;
-    this.title = title;
-    this.contents = contents;
-    this.boardType = boardType;
-  }
 
   public void addBoardFile(BoardFile boardFile) {
-    boardFileSet.add(boardFile);
+    boardFileList.add(boardFile);
     if (boardFile.getBoard() != this) {
       boardFile.setBoard(this);
     }
@@ -95,7 +72,7 @@ Board.builder().member(member).title(title).contents(contents).boardType(boardTy
 
   public void removeBoardFile(BoardFile boardFile) {
     if (boardFile.getBoard() == this) {
-      boardFileSet.remove(boardFile);
+      boardFileList.remove(boardFile);
     }
     boardFile.setBoard(null);
   }
